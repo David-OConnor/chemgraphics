@@ -1,0 +1,16 @@
+[package]
+name = "chemgraphics"
+version = "0.1.0"
+authors = ["DavidOConnor <david.alan.oconnor@gmail.com>"]
+
+# [[bin]]
+# name = "test"
+# path = "src/main.rs"
+
+[dependencies]
+ndarray = "^0.11.2"
+vulkano = "^0.9"
+vulkano-shader-derive = "^0.9"
+vulkano-win = "^0.9"
+winit = "^0.11.0"
+time = "^0.1.37"
