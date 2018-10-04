@@ -38,7 +38,7 @@ use input;
 use scenes;
 use shape_maker;
 use transforms;
-use types::{Camera, Shape, Vertex, VertAndExtras, Normal};
+use types::{Camera, Shape, Vec4, Vertex, VertAndExtras, Normal};
 
 const WIDTH: u32 = 1024;
 const HEIGHT: u32 = 768;
@@ -474,7 +474,10 @@ pub fn render() {
             ).unwrap();
 
         // Update the view matrix once per frame.
-        let view_mat = transforms::view(&scene.cam.position, &scene.cam.θ);
+        let view_mat = transforms::view(
+            &Vec4::from_array(&scene.cam.position),
+            &Vec4::from_array(&scene.cam.θ)
+        );
         let static_uniforms_perframe = vs::ty::Data {
             view: view_mat,
             ..static_uniforms
@@ -483,7 +486,11 @@ pub fn render() {
         for (shape_id, shape) in &scene.shapes {
             let uniform_buffer_subbuffer = {
                 let uniform_data = vs::ty::Data {
-                    model: transforms::model(&shape.position, &shape.orientation, shape.scale),
+                    model: transforms::model(
+                        &Vec4::from_array(&shape.position),
+                        &Vec4::from_array(&shape.orientation),
+                        shape.scale
+                    ),
                     shape_opacity: shape.opacity,
                     ..static_uniforms_perframe
                 };
@@ -562,9 +569,10 @@ pub fn render() {
         }
 
         // Rotate scene.shapes.
-        for (id, shape) in &mut scene.shapes {
-            shape.orientation += &(&shape.rotation_speed * delta_time);
-        }
+        // todo add back in rotation speed.
+//        for (id, shape) in &mut scene.shapes {
+//            shape.orientation += &(&shape.rotation_speed * delta_time);
+//        }
 
         // Note that in more complex programs it is likely that one of `acquire_next_image`,
         // `command_buffer::submit`, or `present` will block for some time. This happens when the

@@ -26,7 +26,7 @@ pub fn make_normals(vertices: &HashMap<u32, Vertex>, faces: &Vec<Array1<u32>>) -
     normals
 }
 
-pub fn combine_meshes(mut base: Mesh, meshes: Vec<(Mesh, [f32; 4])>) -> Mesh{
+pub fn combine_meshes(mut base: Mesh, meshes: Vec<(Mesh, [f32; 3])>) -> Mesh{
     // The array in the meshes tuple is position offset for that shape.
     let mut id_addition = base.vertices.len() as u32;
     for (mesh, offset) in &meshes {
@@ -144,18 +144,18 @@ pub fn rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
     Mesh::new(vertices, faces_vert, normals)
 }
 
-// pub fn house(lens: (f32, f32, f32)) -> Mesh {
-//     // We'll modify base in-place, then return it.
-//     let base = box_(lens);
+ pub fn house(lens: (f32, f32, f32)) -> Mesh {
+     // We'll modify base in-place, then return it.
+     let base = box_(lens);
 
-//     let roof = rect_pyramid(
-//         // Let the roof overhang the base by a little.
-//         // Make the roof height a portion of the base height.
-//         (lens.0 * 1.2, lens.1 / 3., lens.2 * 1.2),
-//     );
+     let roof = rect_pyramid(
+         // Let the roof overhang the base by a little.
+         // Make the roof height a portion of the base height.
+         (lens.0 * 1.2, lens.1 / 3., lens.2 * 1.2),
+     );
 
-//     combine_meshes(base, vec![(roof, [0., lens.1 / 2.])])
-// }
+     combine_meshes(base, vec![(roof, [0., lens.1 / 2., 0.])])
+ }
 
 pub fn cube(side_len: f32) -> Mesh {
     // Convenience function.

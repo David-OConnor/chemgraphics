@@ -1,14 +1,56 @@
 use std::collections::HashMap;
+use std::ops::{Add, Sub, Mul};
 
 use ndarray::prelude::*;
 
 // todo ndarrays, or builtin arrays? We need to enforce length of items.
 
-#[derive(Debug)]
-pub struct Pt2D {
+//#[derive(Debug)]
+//pub struct Pt2D {
+//    pub x: f32,
+//    pub y: f32,
+//}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Vec4 {
     pub x: f32,
     pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
+
+impl Vec4 {
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
+        Vec4 {x, y, z, w}
+    }
+
+    pub fn from_array(vals: &[f32; 3]) -> Vec4 {
+        // Create a Vec4 from a non-homogenous array.
+        Vec4 {x: vals[0], y: vals[1], z: vals[2], w: 1.}
+    }
+
+    pub fn to_array(self) -> [f32; 4] {
+        // todo temp to keep compat with dot product during transition
+        [self.x, self.y, self.z, self.w]
+    }
+}
+
+impl Add for Vec4 {
+    type Output = Self;
+
+    fn add(self, other: Vec4) -> Vec4 {
+        Vec4 {x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, w: self.w + other.w}
+    }
+}
+
+impl Sub for Vec4 {
+    type Output = Self;
+
+    fn sub(self, other: Vec4) -> Vec4 {
+        Vec4 {x: self.x - other.x, y: self.y - other.y, z: self.z - other.z, w: self.w + other.w}
+    }
+}
+
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vertex {
@@ -91,7 +133,7 @@ impl Mesh {
         result
     }
 
-        pub fn make_tris(&mut self) {
+    pub fn make_tris(&mut self) {
         // Divide faces into triangles of indices. These indices aren't of node
         // ids; rather of cumulative node ids; eg how they'll appear in an index buffer.
         // Result is a 1d array.
@@ -103,21 +145,21 @@ impl Mesh {
         for face in &self.faces_vert {
             match face.len() {
                 3 => {
-                // Only one triangle.
-                result.push(current_i as u32);
-                result.push(current_i as u32 + 1);
-                result.push(current_i as u32 + 2);
-            },
+                    // Only one triangle.
+                    result.push(current_i as u32);
+                    result.push(current_i as u32 + 1);
+                    result.push(current_i as u32 + 2);
+                },
                 4 => {
-                // First triangle
-                result.push(current_i as u32);
-                result.push(current_i as u32 + 1);
-                result.push(current_i as u32 + 2);
-                // Second triangle
-                result.push(current_i as u32);
-                result.push(current_i as u32 + 2);
-                result.push(current_i as u32 + 3);
-            },
+                    // First triangle
+                    result.push(current_i as u32);
+                    result.push(current_i as u32 + 1);
+                    result.push(current_i as u32 + 2);
+                    // Second triangle
+                    result.push(current_i as u32);
+                    result.push(current_i as u32 + 2);
+                    result.push(current_i as u32 + 3);
+                },
                 2 => panic!("Faces must have length 3 or more."),
                 _ => panic!("Error: Haven't implemented faces with vertex counds higher than four.")
 
@@ -126,19 +168,6 @@ impl Mesh {
         }
         self.tris = Array::from_vec(result)
     }
-
-//    pub fn make_normals(&mut self) {
-//        // Only take into account x, y, and z when computing normals.
-//        let mut normals = Vec::new();
-//        for face in &self.faces_vert {
-//            // todo make sure these aren't reversed!
-//            let line1 = self.vertices[&face[1]].subtract(&self.vertices[&face[0]]);
-//            let line2 = self.vertices[&face[2]].subtract(&self.vertices[&face[0]]);
-//            normals.push(line1.cross(&line2));
-//        }
-//
-//        self.normals = normals;
-//    }
 
     pub fn num_face_verts(&self) -> u32 {
         // Find the number of vertices used in drawing faces.  Ie for a box,
@@ -154,17 +183,17 @@ pub struct Shape {
     // todo macro constructor that lets you ommit position, rotation, scale.
     // Shape nodes and rotation are relative to an origin of 0.
     pub mesh: Mesh,
-    pub position: Array1<f32>,
+    pub position: [f32; 3],
     pub scale: f32,
-    pub orientation: Array1<f32>,  // Orientation has 6 items; one for each of the 4d hyperplanes.
-    pub rotation_speed: Array1<f32>,  // 6 items, as with rotation.  Radians/s ?
+    pub orientation: [f32; 3],  // Orientation has 3 items.
+    pub rotation_speed: [f32; 3],
     pub opacity: f32,
     pub specular_intensity: f32,
 }
 
 impl Shape {
-    pub fn new(mesh: Mesh, position: Array1<f32>, orientation: Array1<f32>,
-               rotation_speed: Array1<f32>, opacity: f32) -> Shape {
+    pub fn new(mesh: Mesh, position: [f32; 3], orientation: [f32; 3],
+               rotation_speed: [f32; 3], opacity: f32) -> Shape {
 
         Shape{ mesh, position, scale: 1., orientation, rotation_speed,
             opacity, specular_intensity: 1. }
@@ -175,8 +204,8 @@ impl Shape {
 pub struct Camera {
     // Position shifts all points prior to the camera transform; this is what
     // we adjust with move keys.
-    pub position: Array1<f32>,
-    pub θ: Array1<f32>,
+    pub position: [f32; 3],
+    pub θ: [f32; 3],
 
     pub fov: f32,  // Vertical field of view in radians.
     pub aspect: f32,  // width / height.

@@ -1,15 +1,13 @@
-use ndarray::prelude::*;
+use types::{Camera, Vec4};
 
-use types::{Camera};
-
-pub fn dot_mv4(M: [[f32; 4]; 4], v: [f32; 4]) -> [f32; 4] {
+pub fn dot_mv4(M: [[f32; 4]; 4], v: Vec4) -> Vec4 {
     // Dot a len-4 matrix with a vec.
-    [
-        v[0]*M[0][0] + v[1]*M[0][1] + v[2]*M[0][2] + v[3]*M[0][3],
-        v[0]*M[1][0] + v[1]*M[1][1] + v[2]*M[1][2] + v[3]*M[1][3],
-        v[0]*M[2][0] + v[1]*M[2][1] + v[2]*M[2][2] + v[3]*M[2][3],
-        v[0]*M[3][0] + v[1]*M[3][1] + v[2]*M[3][2] + v[3]*M[3][3]
-    ]
+    Vec4::new(
+        v.x*M[0][0] + v.y*M[0][1] + v.z*M[0][2] + v.w*M[0][3],
+        v.x*M[1][0] + v.y*M[1][1] + v.z*M[1][2] + v.w*M[1][3],
+        v.x*M[2][0] + v.y*M[2][1] + v.z*M[2][2] + v.w*M[2][3],
+        v.x*M[3][0] + v.y*M[3][1] + v.z*M[3][2] + v.w*M[3][3]
+    )
 }
 
 pub fn dot_mm4(M0: [[f32; 4]; 4], M1: [[f32; 4]; 4]) -> [[f32; 4]; 4] {
@@ -50,15 +48,15 @@ pub fn I4() -> [[f32; 4]; 4] {
     ]
 }
 
-pub fn rotate(θ: &Array1<f32>) -> [[f32; 4]; 4] {
+pub fn rotate(θ: &Vec4) -> [[f32; 4]; 4] {
     // Homogenous rotation matrix.
     // todo quaternions??
-    let cos_x = θ[0].cos();
-    let sin_x = θ[0].sin();
-    let cos_y = θ[1].cos();
-    let sin_y = θ[1].sin();
-    let cos_z = θ[2].cos();
-    let sin_z = θ[2].sin();
+    let cos_x = θ.x.cos();
+    let sin_x = θ.x.sin();
+    let cos_y = θ.y.cos();
+    let sin_y = θ.y.sin();
+    let cos_z = θ.z.cos();
+    let sin_z = θ.z.sin();
 
     let R_x = [
         [1., 0., 0., 0.],
@@ -84,12 +82,12 @@ pub fn rotate(θ: &Array1<f32>) -> [[f32; 4]; 4] {
     dot_mm4(R_x, dot_mm4(R_y, R_z))
 }
 
-fn translate(position: &Array1<f32>) -> [[f32; 4]; 4] {
+fn translate(position: &Vec4) -> [[f32; 4]; 4] {
     // Return a homogenous translation matrix.
     [
-        [1., 0., 0., position[0]],
-        [0., 1., 0., position[1]],
-        [0., 0., 1., position[2]],
+        [1., 0., 0., position.x],
+        [0., 1., 0., position.y],
+        [0., 0., 1., position.z],
         [0., 0., 0., 1.],
     ]
 }
@@ -129,7 +127,7 @@ pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
 }
 
 
-pub fn model(position: &Array1<f32>, orientation: &Array1<f32>, 
+pub fn model(position: &Vec4, orientation: &Vec4,
         scale_val: f32) -> [[f32; 4]; 4] {
     // Return a model matrix that transforms, rotates, and scales, using homogenous
     // coordinates.  Position first.
@@ -140,7 +138,7 @@ pub fn model(position: &Array1<f32>, orientation: &Array1<f32>,
     dot_mm4(T, dot_mm4(R, S))
 }
 
-pub fn view(position: &Array1<f32>, θ: &Array1<f32>) -> [[f32; 4]; 4] {
+pub fn view(position: &Vec4, θ: &Vec4) -> [[f32; 4]; 4] {
     // Homogenous view matrix.  Position last.
     let T = translate(position);
     let R = rotate(θ);

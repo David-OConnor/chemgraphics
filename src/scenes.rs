@@ -2,10 +2,8 @@
 use std::collections::HashMap;
 use std::f32::consts::PI;
 
-use ndarray::prelude::*;
-
 use shape_maker;
-use types::{Camera, Lighting, Scene, Shape, CameraType};
+use types::{Camera, Lighting, Scene, Shape, CameraType, Vec4};
 
 const τ: f32 = 2. * PI;
 const SHAPE_OP: f32 = 0.3;
@@ -22,8 +20,8 @@ const base_lighting: Lighting = Lighting {
 fn base_camera() -> Camera {
     // function instead of a const, due to the ndarrays.
     Camera {
-        position: Array::zeros(4),
-        θ: Array::zeros(3),
+        position: [0., 0., 0.],
+        θ: [0., 0., 0.],
         fov: τ / 5.,
         aspect: 1.,
         near: 0.05,
@@ -37,8 +35,8 @@ fn make_single_scene(aspect: f32, shape: Shape) -> Scene {
     Scene {
         shapes,
         cam: Camera {
-            position: array![0., 0., 1.],
-            θ: array![0., 0., 0.],
+            position: [0., 0., 1.],
+            θ: [0., 0., 0.],
             fov: τ / 5.5,
             aspect,
             ..base_camera()
@@ -50,7 +48,7 @@ fn make_single_scene(aspect: f32, shape: Shape) -> Scene {
 }
 
 pub fn cube_scene(aspect: f32) -> Scene {
-    make_single_scene(aspect, Shape::new(shape_maker::cube(1.), Array::zeros(3),
-                                         Array::zeros(3), Array::zeros(3), SHAPE_OP))
+    make_single_scene(aspect, Shape::new(shape_maker::cube(1.), [0., 0., 0.],
+                                         [0., 0., 0.], [0., 0., 0.], SHAPE_OP))
 }
 
