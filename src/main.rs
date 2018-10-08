@@ -14,8 +14,12 @@ extern crate ndarray;
 extern crate vulkano;
 #[macro_use]
 extern crate vulkano_shader_derive;
-extern crate vulkano_win;
+
 extern crate winit;
+// The `vulkano_win` crate is the link between `vulkano` and `winit`. Vulkano doesn't know about
+// winit, and winit doesn't know about vulkano, so import a crate that will provide a link between
+// the two.
+extern crate vulkano_win;
 
 mod input;
 mod scenes;
@@ -24,10 +28,7 @@ mod types;
 mod transforms;
 mod render;
 
-use std::collections::HashMap;
-
 fn main() {
-    println!("{}", "HELLO Chemgraphics!");
-     render::render();
+    render::render();
     
 }

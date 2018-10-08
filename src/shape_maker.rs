@@ -1,12 +1,12 @@
 use std::collections::HashMap;
-use std::f32::consts::PI;
+//use std::f32::consts::PI;
 
 use ndarray::prelude::*;
 
 use transforms;
 use types::{Vertex, Mesh, Normal, Shape};
 
-const τ: f32 = 2. * PI;
+//const τ: f32 = 2. * PI;
 
 // We'll define y as vertical, and z as forward/back.  All shapes are given
 // four coordinates. Leave
@@ -26,7 +26,7 @@ pub fn make_normals(vertices: &HashMap<u32, Vertex>, faces: &Vec<Array1<u32>>) -
     normals
 }
 
-pub fn combine_meshes(mut base: Mesh, meshes: Vec<(Mesh, [f32; 3])>) -> Mesh{
+pub fn _combine_meshes(mut base: Mesh, meshes: Vec<(Mesh, [f32; 3])>) -> Mesh{
     // The array in the meshes tuple is position offset for that shape.
     let mut id_addition = base.vertices.len() as u32;
     for (mesh, offset) in &meshes {
@@ -82,12 +82,12 @@ pub fn box_(lens: (f32, f32, f32)) -> Mesh {
     }
 
     let faces_vert = vec![  // Vertex indices for each face.
-        array![0, 1, 2, 3],  // Front
-        array![4, 5, 6, 7],  // Back
-        array![3, 2, 6, 7],  // Top
-        array![0, 1, 5, 4],  // Bottom
-        array![0, 4, 7, 3],  // Left
-        array![1, 5, 6, 2],  // Right
+                            array![0, 1, 2, 3],  // Front
+                            array![4, 5, 6, 7],  // Back
+                            array![3, 2, 6, 7],  // Top
+                            array![0, 1, 5, 4],  // Bottom
+                            array![0, 4, 7, 3],  // Left
+                            array![1, 5, 6, 2],  // Right
     ];
 
     //  Normals correspond to faces.
@@ -103,7 +103,7 @@ pub fn box_(lens: (f32, f32, f32)) -> Mesh {
     Mesh::new(vertices, faces_vert, normals)
 }
 
-pub fn rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
+pub fn _rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
     let coords = [
         // Base  (Center of this shape is the center of the base square)
         [-1., 0., -1.],
@@ -130,7 +130,7 @@ pub fn rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
                             array![2, 3, 4],  // Back
                             array![3, 0, 4],  // Left
     ];
-    
+
     // Normals correspond to faces.
     // Note that these don't need to be normalized here; the shader will do it.
     let normals = vec![
@@ -144,18 +144,18 @@ pub fn rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
     Mesh::new(vertices, faces_vert, normals)
 }
 
- pub fn house(lens: (f32, f32, f32)) -> Mesh {
-     // We'll modify base in-place, then return it.
-     let base = box_(lens);
+pub fn _house(lens: (f32, f32, f32)) -> Mesh {
+    // We'll modify base in-place, then return it.
+    let base = box_(lens);
 
-     let roof = rect_pyramid(
-         // Let the roof overhang the base by a little.
-         // Make the roof height a portion of the base height.
-         (lens.0 * 1.2, lens.1 / 3., lens.2 * 1.2),
-     );
+    let roof = _rect_pyramid(
+        // Let the roof overhang the base by a little.
+        // Make the roof height a portion of the base height.
+        (lens.0 * 1.2, lens.1 / 3., lens.2 * 1.2),
+    );
 
-     combine_meshes(base, vec![(roof, [0., lens.1 / 2., 0.])])
- }
+    _combine_meshes(base, vec![(roof, [0., lens.1 / 2., 0.])])
+}
 
 pub fn cube(side_len: f32) -> Mesh {
     // Convenience function.

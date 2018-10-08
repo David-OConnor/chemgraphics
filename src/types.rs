@@ -24,14 +24,23 @@ impl Vec4 {
         Vec4 {x, y, z, w}
     }
 
-    pub fn from_array(vals: &[f32; 3]) -> Vec4 {
+    pub fn from_array(vals: &[f32; 3]) -> Self {
         // Create a Vec4 from a non-homogenous array.
-        Vec4 {x: vals[0], y: vals[1], z: vals[2], w: 1.}
+        Self {x: vals[0], y: vals[1], z: vals[2], w: 1.}
     }
 
-    pub fn to_array(self) -> [f32; 4] {
+    fn to_array(self) -> [f32; 4] {
         // todo temp to keep compat with dot product during transition
         [self.x, self.y, self.z, self.w]
+    }
+
+    pub fn mul(&self, val: f32) -> Self {
+    // Can't get operator overload working due to other not beign a Vec3.
+        Vec4 {x: self.x * val, y: self.y * val, z: self.z * val, w: self.w * val}
+    }
+
+    pub fn _div(&self, val: f32) -> Self {
+            Vec4 {x: self.x / val, y: self.y / val, z: self.z / val, w: self.w * val}
     }
 }
 
@@ -54,7 +63,7 @@ impl Sub for Vec4 {
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vertex {
-    // This format is Vulkano-friendly.
+    // Only used in meshes, for now.
     pub position: (f32, f32, f32),
 }
 
@@ -79,11 +88,11 @@ impl Vertex {
 
 #[derive(Copy, Clone, Debug)]
 pub struct Normal {
+    // Only used in meshes, for now.
     pub normal: (f32, f32, f32)
 }
 
 impl Normal {
-    // Only really uses the 3d part of the shape, for now.
     pub fn new(x: f32, y: f32, z: f32) -> Normal {
         Normal{ normal: (x, y, z) }
     }
@@ -103,7 +112,8 @@ pub struct VertAndExtras {
 
 impl VertAndExtras {
     pub fn new(posit: Vertex, norm: Normal, specular_intensity: f32) -> VertAndExtras {
-        // Helper function for making position and normal homogenous.
+        // Helper function for making position and normal homogenous, and including
+        // the shape's position in the vertex's.
         VertAndExtras {
             position: (posit.position.0, posit.position.1, posit.position.2, 1.),
             normal: (norm.normal.0, norm.normal.1, norm.normal.2, 1.),
@@ -112,8 +122,8 @@ impl VertAndExtras {
     }
 }
 
-impl_vertex!(Vertex, position);
-impl_vertex!(Normal, normal);
+//impl_vertex!(Vertex, position);
+//impl_vertex!(Normal, normal);
 impl_vertex!(VertAndExtras, position, normal, specular_intensity);
 
 #[derive(Clone, Debug)]
@@ -192,11 +202,15 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn new(mesh: Mesh, position: [f32; 3], orientation: [f32; 3],
-               rotation_speed: [f32; 3], opacity: f32) -> Shape {
-
-        Shape{ mesh, position, scale: 1., orientation, rotation_speed,
-            opacity, specular_intensity: 1. }
+    pub fn new(mesh: Mesh, position: [f32; 3], orientation: [f32; 3]) -> Shape {
+        Shape{
+            mesh,
+            position,
+            scale: 1.,
+            orientation,
+            rotation_speed: [0., 0., 0.],
+            opacity: 1.,
+            specular_intensity: 1. }
     }
 }
 

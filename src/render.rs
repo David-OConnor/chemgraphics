@@ -36,9 +36,8 @@ use winit;
 
 use input;
 use scenes;
-use shape_maker;
 use transforms;
-use types::{Camera, Shape, Vec4, Vertex, VertAndExtras, Normal};
+use types::{Shape, Vec4, VertAndExtras};
 
 const WIDTH: u32 = 1024;
 const HEIGHT: u32 = 768;
@@ -49,14 +48,14 @@ mod vs {
     #[derive(VulkanoShader)]
     #[ty = "vertex"]
     #[path = "src/vert.glsl"]
-    struct Dummy;
+    struct _Dummy;
 }
 
 mod fs {
     #[derive(VulkanoShader)]
     #[ty = "fragment"]
     #[path = "src/frag.glsl"]
-    struct Dummy;
+    struct _Dummy;
 }
 
 pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Device>) ->
@@ -74,20 +73,21 @@ pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Dev
         indices.append(&mut tri_indices);
         index_modifier += shape.mesh.num_face_verts();
 
+        // Iterate over faces; each vertice is used once per face.
         for (i, face) in shape.mesh.faces_vert.iter().enumerate() {
             for vert_id in face {
                 vertex_info.push(
                     VertAndExtras::new(
                         shape.mesh.vertices[vert_id],
                         shape.mesh.normals[i],
-                        shape.specular_intensity
+                        shape.specular_intensity,
                     )
                 );
             }
         }
 
         let index_buffer = CpuAccessibleBuffer::from_iter(device.clone(), buffer::BufferUsage::all(),
-                                                           indices.iter().cloned())
+                                                          indices.iter().cloned())
             .expect("Failed to create index buffer");
 
         let vertex_buffer = CpuAccessibleBuffer::from_iter(
@@ -106,14 +106,13 @@ pub fn render() {
     // todo sync aspect with window dims.
 
     let aspect = WIDTH as f32 / HEIGHT as f32;
-  
-    let mut scene = scenes::cube_scene(aspect);
 
-    let mut currently_pressed: Vec<u32> = Vec::new();
+    let mut scene = scenes::scene_1(aspect);
+
     let mut currently_pressed: Vec<u32> = Vec::new();
 
     // The first step of any vulkan program is to create an instance.
-    let instance = {
+    let instance_ = {
         // When we create an instance, we have to pass a list of extensions that we want to enable.
         //
         // All the window-drawing functionalities are part of non-core extensions that we need
@@ -140,7 +139,7 @@ pub fn render() {
     //
     // For the sake of the example we are just going to use the first device, which should work
     // most of the time.
-    let physical = instance::PhysicalDevice::enumerate(&instance)
+    let physical = instance::PhysicalDevice::enumerate(&instance_)
         .next().expect("no device available");
     // Some little debug infos.
     println!("Using device: {} (type: {:?})", physical.name(), physical.ty());
@@ -156,7 +155,7 @@ pub fn render() {
     // This returns a `vulkano::swapchain::Surface` object that contains both a cross-platform winit
     // window and a cross-platform Vulkan surface that represents the surface of the window.
     let mut events_loop = winit::EventsLoop::new();
-    let surface = winit::WindowBuilder::new().build_vk_surface(&events_loop, instance.clone()).unwrap();
+    let surface = winit::WindowBuilder::new().build_vk_surface(&events_loop, instance_.clone()).unwrap();
 
     // The next step is to choose which GPU queue will execute our draw commands.
     //
@@ -248,10 +247,8 @@ pub fn render() {
 
     // todo move depth_buffer and unifform buffer to one of the make_buffer funcs.
 
-    let mut proj = transforms::proj(&scene.cam);
-
     let uniform_buffer = buffer::cpu_pool::CpuBufferPool::<vs::ty::Data>
-        ::new(device_.clone(), buffer::BufferUsage::all());
+    ::new(device_.clone(), buffer::BufferUsage::all());
 
     // The next step is to create the shaders.
     //
@@ -307,7 +304,7 @@ pub fn render() {
 
     // Before we draw we have to create what is called a pipeline. This is similar to an OpenGL
     // program, but much more specific.
-    // Info on what we can configure here: https://docs.rs/vulkano/0.7.2/vulkano/pipeline/struct.GraphicsPipelineBuilder.html
+    // Info on what we can configure here: https://docs.rs/vulkano/0.10.0/vulkano/pipeline/struct.GraphicsPipelineBuilder.html
     // Leaving default options explicit here to make it easier to configure.
     let pipeline_ = Arc::new(pipeline::GraphicsPipeline::start()
         .vertex_input_single_buffer() // todo
@@ -323,10 +320,10 @@ pub fn render() {
         .cull_mode_disabled()
         .polygon_mode_fill()
         .sample_shading_disabled()
-//        .alpha_to_one_disabled()
-        .blend_alpha_blending()
+        .alpha_to_one_disabled()
+//        .blend_alpha_blending()
         .fragment_shader(fs.main_entry_point(), ())
-        .depth_stencil_disabled()
+//        .depth_stencil_disabled()
 //        .depth_stencil_simple_depth()  // Don't use depth_stencil for transparent scene.shapes.
         // We have to indicate which subpass of which render pass this pipeline is going to be used
         // in. The pipeline will only be usable from this particular subpass.
@@ -365,11 +362,11 @@ pub fn render() {
 
     let mut prev_frame_start = time::Instant::now();
 
-    let mut static_uniforms = vs::ty::Data {
+    let mut uniforms = vs::ty::Data {
         // view matrix will change per frame; model will change per shape.
         model: transforms::I4(),
         view: transforms::I4(),
-        proj,
+        proj: transforms::proj(&scene.cam),
 
         ambient_color: scene.lighting.ambient_color,
         diffuse_color: scene.lighting.diffuse_color,
@@ -386,10 +383,17 @@ pub fn render() {
         shape_opacity: 0.,
     };
 
+    let mut dynamic_state = command_buffer::DynamicState {
+        line_width: None,
+        viewports: Some(vec![pipeline::viewport::Viewport {
+            origin: [0.0, 0.0],
+            dimensions: [dimensions[0] as f32, dimensions[1] as f32],
+            depth_range: 0.0 .. 1.0,
+        }]),
+        scissors: None,
+    };
+
     loop {
-        // We update the projection Mat each frame to account for zoom changes.
-        // todo: We should only update it when the zoom changes.
-        static_uniforms.proj = transforms::proj(&scene.cam);
         // delta_time is inverse frame rate. Used for making movements and
         // rotations dependent on time rather than frame rate.
         let frame_start = time::Instant::now();
@@ -473,26 +477,25 @@ pub fn render() {
                 ]
             ).unwrap();
 
+        // We update the projection Mat each frame to account for zoom changes.
+        // todo: We should only update it when the zoom changes.
+        uniforms.proj = transforms::proj(&scene.cam);
+
         // Update the view matrix once per frame.
-        let view_mat = transforms::view(
-            &Vec4::from_array(&scene.cam.position),
-            &Vec4::from_array(&scene.cam.θ)
-        );
-        let static_uniforms_perframe = vs::ty::Data {
-            view: view_mat,
-            ..static_uniforms
-        };
+        uniforms.view = transforms::view(&scene.cam.position, &scene.cam.θ);
+
+//        println!("{:?} view", &uniforms.view);
 
         for (shape_id, shape) in &scene.shapes {
             let uniform_buffer_subbuffer = {
                 let uniform_data = vs::ty::Data {
                     model: transforms::model(
-                        &Vec4::from_array(&shape.position),
-                        &Vec4::from_array(&shape.orientation),
+                        &shape.position,
+                        &shape.orientation,
                         shape.scale
                     ),
                     shape_opacity: shape.opacity,
-                    ..static_uniforms_perframe
+                    ..uniforms
                 };
 
                 uniform_buffer.next(uniform_data).unwrap()
@@ -507,18 +510,9 @@ pub fn render() {
             //
             // The last two parameters contain the list of resources to pass to the shaders.
             // Since we used an `EmptyPipeline` object, the objects have to be `()`.
-
             command_buffer_ = command_buffer_.draw_indexed(
                 pipeline_.clone(),
-                command_buffer::DynamicState {
-                    line_width: None,
-                    viewports: Some(vec![pipeline::viewport::Viewport {
-                        origin: [0.0, 0.0],
-                        dimensions: [dimensions[0] as f32, dimensions[1] as f32],
-                        depth_range: 0.0 .. 1.0,
-                    }]),
-                    scissors: None,
-                },
+                &dynamic_state,
                 vertex_buffers[shape_id].clone(),
                 index_buffers[shape_id].clone(), set, ()
             ).unwrap();
@@ -526,11 +520,11 @@ pub fn render() {
 
         let final_cb = command_buffer_.end_render_pass().unwrap()
 
-        // We leave the render pass by calling `draw_end`. Note that if we had multiple
-        // subpasses we could have called `next_inline` (or `next_secondary`) to jump to the
-        // next subpass.
-        // Finish building the command buffer by calling `build`.
-        .build().unwrap();
+            // We leave the render pass by calling `draw_end`. Note that if we had multiple
+            // subpasses we could have called `next_inline` (or `next_secondary`) to jump to the
+            // next subpass.
+            // Finish building the command buffer by calling `build`.
+            .build().unwrap();
 
         // In order to draw, we have to build a *command buffer*. The command buffer object holds
         // the list of commands that are going to be executed.
@@ -588,7 +582,7 @@ pub fn render() {
 
         events_loop.poll_events(|ev| {
             match ev {
-                winit::Event::WindowEvent { event: winit::WindowEvent::Closed, .. } => done = true,
+                winit::Event::WindowEvent { event: winit::WindowEvent::CloseRequested, .. } => done = true,
 
                 winit::Event::WindowEvent {
                     event: winit::WindowEvent::KeyboardInput {

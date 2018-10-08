@@ -2,9 +2,8 @@
 use std::collections::HashMap;
 use std::f32::consts::PI;
 
-use scenes;
 use transforms;
-use types::{Camera, CameraType, Scene, Shape, Vec4};
+use types::{Camera, CameraType, Scene, Vec4};
 
 const τ: f32 = 2. * PI;
 
@@ -12,10 +11,6 @@ const τ: f32 = 2. * PI;
 // todo could move this to a util file.
 fn add_arr(arr1: [f32; 3], arr2: [f32; 3]) -> [f32; 3] {
     [arr1[0] + arr2[0], arr1[1] + arr2[1], arr1[2] + arr2[2]]
-}
-
-fn add_val(arr1: [f32; 3], val: f32) -> [f32; 3] {
-    [arr1[0] + val, arr1[1] + val, arr1[2] + val]
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -39,9 +34,9 @@ pub fn move_camera(direction: MoveDirection, θ: &[f32; 3], amount: f32) -> [f32
         MoveDirection::Down => [0., -1., 0.],
     };
 
-    let v = transforms::dot_mv4(transforms::rotate(&Vec4::from_array(θ)),
-                                Vec4::from_array(&unit_vec));
-    
+//    let v = transforms::dot_mv4(transforms::rotate(&θ), Vec4::from_array(&unit_vec));
+    let v = Vec4::from_array(&unit_vec);
+
     // De-homogenize
     [
         v.x * amount, v.y * amount, v.z * amount
@@ -112,14 +107,14 @@ pub fn handle_pressed<'a>(pressed: &[u32], delta_time: f32,
             // X rotations range from -τ/4 to τ/4 (Looking straight down to up)
             75 => {  // Left
                 match scene.cam_type {
-                    CameraType::Single => shape.orientation[2] -= rotate_amount,
-                    _ => scene.cam.θ[2] -= rotate_amount
+                    CameraType::Single => shape.orientation[1] -= rotate_amount,
+                    _ => scene.cam.θ[1] -= rotate_amount
                 }
             },
             77 => {  // Right
                 match scene.cam_type {
-                    CameraType::Single => shape.orientation[2] += rotate_amount,
-                    _ => scene.cam.θ[2]   += rotate_amount
+                    CameraType::Single => shape.orientation[1] += rotate_amount,
+                    _ => scene.cam.θ[1]   += rotate_amount
                 }
             },
             // Don't allow us to look greater than τ/4 up or down.
@@ -137,14 +132,14 @@ pub fn handle_pressed<'a>(pressed: &[u32], delta_time: f32,
             },
             16 => {  // Q
                 match scene.cam_type {
-                    CameraType::Single => shape.orientation[1] -= rotate_amount,
-                    _ => scene.cam.θ[1] -= rotate_amount
+                    CameraType::Single => shape.orientation[2] -= rotate_amount,
+                    _ => scene.cam.θ[2] -= rotate_amount
                 }
             },
             18 => {  // E
                 match scene.cam_type {
-                    CameraType::Single => shape.orientation[1] += rotate_amount,
-                    _ => scene.cam.θ[1] += rotate_amount
+                    CameraType::Single => shape.orientation[2] += rotate_amount,
+                    _ => scene.cam.θ[2] += rotate_amount
                 }
             },
 

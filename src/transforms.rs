@@ -48,15 +48,15 @@ pub fn I4() -> [[f32; 4]; 4] {
     ]
 }
 
-pub fn rotate(θ: &Vec4) -> [[f32; 4]; 4] {
+pub fn rotate(θ: &[f32; 3]) -> [[f32; 4]; 4] {
     // Homogenous rotation matrix.
     // todo quaternions??
-    let cos_x = θ.x.cos();
-    let sin_x = θ.x.sin();
-    let cos_y = θ.y.cos();
-    let sin_y = θ.y.sin();
-    let cos_z = θ.z.cos();
-    let sin_z = θ.z.sin();
+    let cos_x = θ[0].cos();
+    let sin_x = θ[0].sin();
+    let cos_y = θ[1].cos();
+    let sin_y = θ[1].sin();
+    let cos_z = θ[2].cos();
+    let sin_z = θ[2].sin();
 
     let R_x = [
         [1., 0., 0., 0.],
@@ -79,15 +79,15 @@ pub fn rotate(θ: &Vec4) -> [[f32; 4]; 4] {
         [0., 0., 0., 1.],
     ];
 
-    dot_mm4(R_x, dot_mm4(R_y, R_z))
+    dot_mm4(R_z, dot_mm4(R_y, R_x))
 }
 
-fn translate(position: &Vec4) -> [[f32; 4]; 4] {
+fn translate(position: &[f32; 3]) -> [[f32; 4]; 4] {
     // Return a homogenous translation matrix.
     [
-        [1., 0., 0., position.x],
-        [0., 1., 0., position.y],
-        [0., 0., 1., position.z],
+        [1., 0., 0., position[0]],
+        [0., 1., 0., position[1]],
+        [0., 0., 1., position[2]],
         [0., 0., 0., 1.],
     ]
 }
@@ -118,28 +118,49 @@ pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
     let n = cam.near;
     let f = cam.far;
 
+//    [
+//        [2.*n / (r - l), 0., (r+l) / (2.*(r-l)), (r+l) / (2.*(r-l))],
+//        [0., -2.*n / (t-b), (t+b) / (2.*(t-b)), (t+b) / (2.*(t-b))],
+//        [0., 0., -(f+n) / (2.*(f-n)), -(2.*f*n) / (f-n) + -(f+n) / (2.*(f-n))],
+//        [0., 0., -0.5, -0.5],
+//    ]
+////    // todo test
+//    let r = -l;
+//    let t = -b;
+//
+//
+//    [
+//        [1./r, 0., 0., 0.],
+//        [0., 1./t, 0., 0.],
+//        [0., 0., -2./(f-n), -(f+n) / (f-n)],
+//        [0., 0., 0., 1.],
+//    ]
+
     [
-        [2.*n / (r - l), 0., (r+l) / (2.*(r-l)), (r+l) / (2.*(r-l))],
-        [0., -2.*n / (t-b), (t+b) / (2.*(t-b)), (t+b) / (2.*(t-b))],
-        [0., 0., -(f+n) / (2.*(f-n)), -(2.*f*n) / (f-n) + -(f+n) / (2.*(f-n))],
-        [0., 0., -0.5, -0.5],
+        [2.*n / (r - l), 0., (r+l) / (r-l) / 2., 0.],
+        [0., -2.*n / (t-b), (t+b) / (t-b) / 2., (b+t) / (t-b) / 2.],
+        [0., 0., -(f+n) / (f-n) / 2., -(2.*f*n) / (f-n) + (-f-n) / (f-n) / 2.],
+        // u_scale is, ultimately, not really used.
+        // This row allows us to divide by z after taking the dot product,
+        // as part of our scaling operation.
+        [0., 0., -0.5, -1.],  // todo last val -1. ? -0.5 ?
     ]
+
 }
 
 
-pub fn model(position: &Vec4, orientation: &Vec4,
-        scale_val: f32) -> [[f32; 4]; 4] {
+pub fn model(position: &[f32; 3], orientation: &[f32; 3], scale_val: f32) -> [[f32; 4]; 4] {
     // Return a model matrix that transforms, rotates, and scales, using homogenous
-    // coordinates.  Position first.
-    let T = translate(position);
+    // coordinates.  Position last
     let R = rotate(orientation);
     let S = scale(scale_val);
+    let T = translate(position);
     
-    dot_mm4(T, dot_mm4(R, S))
+    dot_mm4(T, dot_mm4(S, R))
 }
 
-pub fn view(position: &Vec4, θ: &Vec4) -> [[f32; 4]; 4] {
-    // Homogenous view matrix.  Position last.
+pub fn view(position: &[f32; 3], θ: &[f32; 3]) -> [[f32; 4]; 4] {
+    // Homogenous view matrix.  Position first
     let T = translate(position);
     let R = rotate(θ);
 

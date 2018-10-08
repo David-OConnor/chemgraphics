@@ -35,14 +35,6 @@ void main() {
     gl_Position = uniforms.proj * uniforms.view * uniforms.model * position;
 
     vec4 diffuse_color = find_diffuse_color();
-
-//        view_posit = positioned_pt;
-//        diffuse_direction = uniforms.diffuse_direction;
-//        diffuse_color = uniforms.diffuse_color;
-//        specular_intensity = uniforms.specular_intensity;
-
-//        normal_ = uniforms.model * normal;
-//        frag_pos = positioned_pt;
-//        color = diffuse_color;
-    color = vec4(1., 0., 0., 1.);
+    color = diffuse_color;
+//    color = vec4(1., 0., 0., 1.);
 }
