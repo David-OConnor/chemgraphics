@@ -6,6 +6,10 @@ use ndarray::prelude::*;
 use transforms;
 use types::{Vertex, Mesh, Normal, Shape};
 
+fn add(left: &Vec<u32>, val: u32) -> Vec<u32> {
+    left.iter().map(|item| item + val).collect()
+}
+
 //const τ: f32 = 2. * PI;
 
 // We'll define y as vertical, and z as forward/back.  All shapes are given
@@ -26,6 +30,7 @@ pub fn make_normals(vertices: &HashMap<u32, Vertex>, faces: &Vec<Array1<u32>>) -
     normals
 }
 
+
 pub fn _combine_meshes(mut base: Mesh, meshes: Vec<(Mesh, [f32; 3])>) -> Mesh{
     // The array in the meshes tuple is position offset for that shape.
     let mut id_addition = base.vertices.len() as u32;
@@ -34,14 +39,14 @@ pub fn _combine_meshes(mut base: Mesh, meshes: Vec<(Mesh, [f32; 3])>) -> Mesh{
             // For the roof, modify the ids to be unique.
             base.vertices.insert(
                 id + id_addition,
-                Vertex::new(vertex.position.0 + offset[0], vertex.position.1 + offset[1],
-                            vertex.position.2 + offset[2]
+                Vertex::new(vertex.position[0] + offset[0], vertex.position[1] + offset[1],
+                            vertex.position[2] + offset[2]
                 )
             );
         }
 
         for face in &mesh.faces_vert {
-            base.faces_vert.push(face + id_addition);
+            base.faces_vert.push(add(face, id_addition));
         }
 
         for normal in &mesh.normals {  // todo rotate normals!
@@ -82,12 +87,21 @@ pub fn box_(lens: (f32, f32, f32)) -> Mesh {
     }
 
     let faces_vert = vec![  // Vertex indices for each face.
-                            array![0, 1, 2, 3],  // Front
-                            array![4, 5, 6, 7],  // Back
-                            array![3, 2, 6, 7],  // Top
-                            array![0, 1, 5, 4],  // Bottom
-                            array![0, 4, 7, 3],  // Left
-                            array![1, 5, 6, 2],  // Right
+        vec![0, 1, 2, 3],  // Front
+        vec![4, 5, 6, 7],  // Back
+        vec![3, 2, 6, 7],  // Top
+        vec![0, 1, 5, 4],  // Bottom
+        vec![0, 4, 7, 3],  // Left
+        vec![1, 5, 6, 2],  // Right
+    ];
+
+    let face_colors = vec![
+       [1., 1., 0., 1.],  // Front
+       [0., 1., 1., 1.],  // Back
+       [1., 0., 0., 1.],  // Top
+       [0., 0., 1., 1.],  // Bottom
+       [1., 0., 1., 1.],  // Left
+       [0., 1., 0., 1.],  // Right
     ];
 
     //  Normals correspond to faces.
@@ -100,7 +114,7 @@ pub fn box_(lens: (f32, f32, f32)) -> Mesh {
         Normal::new(1., 0., 0.),
     ];
 
-    Mesh::new(vertices, faces_vert, normals)
+    Mesh::new(vertices, faces_vert, face_colors, normals)
 }
 
 pub fn _rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
@@ -124,11 +138,20 @@ pub fn _rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
     }
 
     let faces_vert = vec![  // Vertex indices for each face.
-                            array![0, 1, 2, 3],  // Base
-                            array![0, 1, 4],  // Front
-                            array![1, 2, 4],  // Right
-                            array![2, 3, 4],  // Back
-                            array![3, 0, 4],  // Left
+        vec![0, 1, 2, 3],  // Base
+        vec![0, 1, 4],  // Front
+        vec![1, 2, 4],  // Right
+        vec![2, 3, 4],  // Back
+        vec![3, 0, 4],  // Left
+    ];
+
+    let face_colors = vec![
+        [1., 1., 0., 1.],
+        [0., 1., 1., 1.],
+        [1., 0., 0., 1.],
+        [0., 0., 1., 1.],
+        [1., 0., 1., 1.],
+
     ];
 
     // Normals correspond to faces.
@@ -141,7 +164,7 @@ pub fn _rect_pyramid(lens: (f32, f32, f32)) -> Mesh {
         Normal::new(lens.2, lens.1, 0.),
     ];
 
-    Mesh::new(vertices, faces_vert, normals)
+    Mesh::new(vertices, faces_vert, face_colors, normals)
 }
 
 pub fn _house(lens: (f32, f32, f32)) -> Mesh {
@@ -164,9 +187,9 @@ pub fn cube(side_len: f32) -> Mesh {
 }
 
 fn avg_normals(normals: Vec<Normal>) -> Normal {
-    let x = normals.iter().fold(0., |acc, norm| acc + norm.normal.0);
-    let y = normals.iter().fold(0., |acc, norm| acc + norm.normal.1);
-    let z = normals.iter().fold(0., |acc, norm| acc + norm.normal.2);
+    let x = normals.iter().fold(0., |acc, norm| acc + norm.normal[0]);
+    let y = normals.iter().fold(0., |acc, norm| acc + norm.normal[1]);
+    let z = normals.iter().fold(0., |acc, norm| acc + norm.normal[2]);
 
     let len = normals.len() as f32;
     Normal::new(x/len , y/len, z/len)

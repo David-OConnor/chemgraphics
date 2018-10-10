@@ -20,27 +20,29 @@ pub struct Vec4 {
 }
 
 impl Vec4 {
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
-        Vec4 {x, y, z, w}
-    }
-
-    pub fn from_array(vals: &[f32; 3]) -> Self {
-        // Create a Vec4 from a non-homogenous array.
-        Self {x: vals[0], y: vals[1], z: vals[2], w: 1.}
-    }
-
-    fn to_array(self) -> [f32; 4] {
-        // todo temp to keep compat with dot product during transition
-        [self.x, self.y, self.z, self.w]
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        Self {x, y, z, w}
     }
 
     pub fn mul(&self, val: f32) -> Self {
     // Can't get operator overload working due to other not beign a Vec3.
-        Vec4 {x: self.x * val, y: self.y * val, z: self.z * val, w: self.w * val}
+        Self {x: self.x * val, y: self.y * val, z: self.z * val, w: self.w * val}
     }
 
     pub fn _div(&self, val: f32) -> Self {
-            Vec4 {x: self.x / val, y: self.y / val, z: self.z / val, w: self.w * val}
+            Self {x: self.x / val, y: self.y / val, z: self.z / val, w: self.w * val}
+    }
+}
+
+impl From<[f32; 3]> for Vec4 {
+    fn from(vals: [f32; 3]) -> Self {
+        Self {x: vals[0], y: vals[1], z: vals[2], w: 1.}
+    }
+}
+
+impl From<Vec4> for [f32; 3] {
+    fn from(v: Vec4) -> Self {
+        [v.x, v.y, v.z]
     }
 }
 
@@ -64,24 +66,24 @@ impl Sub for Vec4 {
 #[derive(Copy, Clone, Debug)]
 pub struct Vertex {
     // Only used in meshes, for now.
-    pub position: (f32, f32, f32),
+    pub position: [f32; 3],
 }
 
 impl Vertex {
     pub fn new(x: f32, y: f32, z: f32) -> Vertex {
-        Vertex{ position: (x, y, z) }
+        Vertex{ position: [x, y, z] }
     }
 
     pub fn subtract(&self, other: &Vertex) -> Vertex {
-        Vertex::new(self.position.0 - other.position.0, self.position.1 - other.position.1,
-                    self.position.2 - other.position.2)
+        Vertex::new(self.position[0] - other.position[0], self.position[1] - other.position[1],
+                    self.position[2] - other.position[2])
     }
 
     pub fn cross(&self, other: &Vertex) -> Normal {
         Normal::new(
-            self.position.1 * other.position.2 - self.position.2 * other.position.1,
-            self.position.2 * other.position.0 - self.position.0 * other.position.2,
-            self.position.0 * other.position.1 - self.position.1 * other.position.0,
+            self.position[1] * other.position[2] - self.position[2] * other.position[1],
+            self.position[2] * other.position[0] - self.position[0] * other.position[2],
+            self.position[0] * other.position[1] - self.position[1] * other.position[0],
         )
     }
 }
@@ -89,56 +91,62 @@ impl Vertex {
 #[derive(Copy, Clone, Debug)]
 pub struct Normal {
     // Only used in meshes, for now.
-    pub normal: (f32, f32, f32)
+    pub normal: [f32; 3]
 }
 
 impl Normal {
-    pub fn new(x: f32, y: f32, z: f32) -> Normal {
-        Normal{ normal: (x, y, z) }
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self{ normal: [x, y, z] }
     }
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct VertAndExtras {
+pub struct ShaderVertex {
     // Used to pass attributes that go with each vertex to the shader.
     // We do the impl_vertex in render_vulkano, so we don't need to import vulkano
     // in the wasm target.
-
+    // todo arrays vice tuples?
     // Unlike in Vertex and Normal, use homogenous coordinates here.
-    pub position: (f32, f32, f32, f32),
-    pub normal: (f32, f32, f32, f32),
+//    pub position: (f32, f32, f32, f32),
+//    pub normal: (f32, f32, f32, f32),
+//    pub face_color: (f32, f32, f32, f32),
+
+    pub position: [f32; 4],
+    pub normal: [f32; 4],
+    pub face_color: [f32; 4],
+
     pub specular_intensity: f32,
 }
 
-impl VertAndExtras {
-    pub fn new(posit: Vertex, norm: Normal, specular_intensity: f32) -> VertAndExtras {
+impl ShaderVertex {
+    pub fn new(posit: Vertex, norm: Normal, color: [f32; 4], specular_intensity: f32) -> ShaderVertex {
         // Helper function for making position and normal homogenous, and including
         // the shape's position in the vertex's.
-        VertAndExtras {
-            position: (posit.position.0, posit.position.1, posit.position.2, 1.),
-            normal: (norm.normal.0, norm.normal.1, norm.normal.2, 1.),
+        ShaderVertex {
+            position: [posit.position[0], posit.position[1], posit.position[2], 1.],
+            normal: [norm.normal[0], norm.normal[1], norm.normal[2], 1.],
+            face_color: [color[0], color[1], color[2], color[3]],
             specular_intensity,
         }
     }
 }
 
-//impl_vertex!(Vertex, position);
-//impl_vertex!(Normal, normal);
-impl_vertex!(VertAndExtras, position, normal, specular_intensity);
+impl_vertex!(ShaderVertex, position, normal, face_color, specular_intensity);
 
 #[derive(Clone, Debug)]
 pub struct Mesh {
     pub vertices: HashMap<u32, Vertex>,
-    pub faces_vert: Vec<Array1<u32>>,  // Indicies of vertexes.
+    pub faces_vert: Vec<Vec<u32>>,  // Indicies of vertexes.
+    pub face_colors: Vec<[f32; 4]>,  // These index corresopnd to faces_vert indices.
     pub normals: Vec<Normal>,  // Normals only use the 3d component; not defined for 4d, yet. ?
     pub tris: Array1<u32>,
 }
 
 impl Mesh {
     pub fn new(vertices: HashMap<u32, Vertex>,
-               faces_vert: Vec<Array1<u32>>, normals: Vec<Normal>) -> Mesh {
+               faces_vert: Vec<Vec<u32>>, face_colors: Vec<[f32; 4]>, normals: Vec<Normal>) -> Mesh {
 
-        let mut result = Mesh {vertices, faces_vert, normals, tris: array![]};
+        let mut result = Mesh {vertices, faces_vert, face_colors, normals, tris: array![]};
         result.make_tris();
         result
     }
@@ -184,9 +192,7 @@ impl Mesh {
         // it's 6 faces x 4 vertices/face.
         self.faces_vert.iter().fold(0, |acc, face| acc + face.len() as u32)
     }
-
 }
-
 
 #[derive(Clone, Debug)]
 pub struct Shape {

@@ -35,7 +35,7 @@ pub fn move_camera(direction: MoveDirection, θ: &[f32; 3], amount: f32) -> [f32
     };
 
 //    let v = transforms::dot_mv4(transforms::rotate(&θ), Vec4::from_array(&unit_vec));
-    let v = Vec4::from_array(&unit_vec);
+    let v: Vec4 = unit_vec.into();
 
     // De-homogenize
     [

@@ -37,7 +37,7 @@ use winit;
 use input;
 use scenes;
 use transforms;
-use types::{Shape, Vec4, VertAndExtras};
+use types::{Shape, Vec4, ShaderVertex};
 
 const WIDTH: u32 = 1024;
 const HEIGHT: u32 = 768;
@@ -48,18 +48,20 @@ mod vs {
     #[derive(VulkanoShader)]
     #[ty = "vertex"]
     #[path = "src/vert.glsl"]
-    struct _Dummy;
+    #[allow(dead_code)]
+    struct Dummy;
 }
 
 mod fs {
     #[derive(VulkanoShader)]
     #[ty = "fragment"]
     #[path = "src/frag.glsl"]
-    struct _Dummy;
+    #[allow(dead_code)]
+    struct Dummy;
 }
 
 pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Device>) ->
-        (HashMap<u32, Arc<CpuAccessibleBuffer<[u32]>>>, HashMap<u32, Arc<CpuAccessibleBuffer<[VertAndExtras]>>>) {
+        (HashMap<u32, Arc<CpuAccessibleBuffer<[u32]>>>, HashMap<u32, Arc<CpuAccessibleBuffer<[ShaderVertex]>>>) {
     // Make index and vertex buffers.
     let mut index_buffers = HashMap::new();
     let mut vertex_buffers = HashMap::new();
@@ -73,13 +75,15 @@ pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Dev
         indices.append(&mut tri_indices);
         index_modifier += shape.mesh.num_face_verts();
 
+        // todo could do separate normals buffer.
         // Iterate over faces; each vertice is used once per face.
         for (i, face) in shape.mesh.faces_vert.iter().enumerate() {
             for vert_id in face {
                 vertex_info.push(
-                    VertAndExtras::new(
+                    ShaderVertex::new(
                         shape.mesh.vertices[vert_id],
                         shape.mesh.normals[i],
+                        shape.mesh.face_colors[i],
                         shape.specular_intensity,
                     )
                 );
@@ -167,7 +171,7 @@ pub fn render() {
     // queue to handle data transfers in parallel. In this example we only use one queue.
     //
     // We have to choose which queues to use early on, because we will need this info very soon.
-    let queue = physical.queue_families().find(|&q| {
+    let queue_family = physical.queue_families().find(|&q| {
         // We take the first queue that supports drawing to our window.
         q.supports_graphics() && surface.is_supported(q).unwrap_or(false)
     }).expect("couldn't find a graphical queue family");
@@ -198,7 +202,7 @@ pub fn render() {
         };
 
         device::Device::new(physical, physical.supported_features(), &device_ext,
-                            [(queue, 0.5)].iter().cloned()).expect("failed to create device")
+                            [(queue_family, 0.5)].iter().cloned()).expect("failed to create device")
     };
 
     // Since we can request multiple queues, the `queues` variable is in fact an iterator. In this
@@ -240,15 +244,16 @@ pub fn render() {
                                   None).expect("failed to create swapchain")
     };
 
-    let depth_buffer = image::attachment::AttachmentImage::transient(
+    let mut depth_buffer = image::attachment::AttachmentImage::transient(
         device_.clone(), dimensions, format::D16Unorm).unwrap();
 
+    // todo sep normals buffer like in teapot example?
     let (index_buffers, vertex_buffers) = make_static_buffers(&scene.shapes, device_.clone());
 
-    // todo move depth_buffer and unifform buffer to one of the make_buffer funcs.
+    // todo move depth_buffer and unifform buffer to one of the make_buffer funcs?
 
     let uniform_buffer = buffer::cpu_pool::CpuBufferPool::<vs::ty::Data>
-    ::new(device_.clone(), buffer::BufferUsage::all());
+        ::new(device_.clone(), buffer::BufferUsage::all());
 
     // The next step is to create the shaders.
     //
@@ -316,15 +321,9 @@ pub fn render() {
         .triangle_list()
         // Use a resizable viewport set to draw over the entire window
         .viewports_dynamic_scissors_irrelevant(1)
-        // See `vertex_shader`.
-        .cull_mode_disabled()
-        .polygon_mode_fill()
-        .sample_shading_disabled()
-        .alpha_to_one_disabled()
-//        .blend_alpha_blending()
         .fragment_shader(fs.main_entry_point(), ())
-//        .depth_stencil_disabled()
-//        .depth_stencil_simple_depth()  // Don't use depth_stencil for transparent scene.shapes.
+        .depth_stencil_simple_depth()
+
         // We have to indicate which subpass of which render pass this pipeline is going to be used
         // in. The pipeline will only be usable from this particular subpass.
         .render_pass(framebuffer::Subpass::from(render_pass.clone(), 0).unwrap())
@@ -362,27 +361,6 @@ pub fn render() {
 
     let mut prev_frame_start = time::Instant::now();
 
-    let mut uniforms = vs::ty::Data {
-        // view matrix will change per frame; model will change per shape.
-        model: transforms::I4(),
-        view: transforms::I4(),
-        proj: transforms::proj(&scene.cam),
-
-        ambient_color: scene.lighting.ambient_color,
-        diffuse_color: scene.lighting.diffuse_color,
-        // Homogenize.
-        diffuse_direction: [
-            scene.lighting.diffuse_direction[0],
-            scene.lighting.diffuse_direction[1],
-            scene.lighting.diffuse_direction[2],
-            1.
-        ],
-
-        ambient_intensity: scene.lighting.ambient_intensity,
-        diffuse_intensity: scene.lighting.diffuse_intensity,
-        shape_opacity: 0.,
-    };
-
     let mut dynamic_state = command_buffer::DynamicState {
         line_width: None,
         viewports: Some(vec![pipeline::viewport::Viewport {
@@ -398,7 +376,7 @@ pub fn render() {
         // rotations dependent on time rather than frame rate.
         let frame_start = time::Instant::now();
         let delta_time_raw = frame_start - prev_frame_start;
-        let delta_time = delta_time_raw.as_secs() as f32 + delta_time_raw.subsec_nanos() as f32 * 0.000000001;
+        let delta_time = delta_time_raw.as_secs() as f32 + delta_time_raw.subsec_nanos() as f32 * 1e-9;
         prev_frame_start = frame_start;
 
         // It is important to call this function from time to time, otherwise resources will keep
@@ -424,10 +402,19 @@ pub fn render() {
                 Err(err) => panic!("{:?}", err)
             };
 
-            std::mem::replace(&mut swapchain_, new_swapchain);
-            std::mem::replace(&mut images, new_images);
+            swapchain_ = new_swapchain;
+            images = new_images;
+
+            depth_buffer = image::attachment::AttachmentImage::transient(device_.clone(), dimensions,
+                                                                         format::D16Unorm).unwrap();
 
             framebuffers = None;
+
+            dynamic_state.viewports = Some(vec![pipeline::viewport::Viewport {
+                origin: [0.0, 0.0],
+                dimensions: [dimensions[0] as f32, dimensions[1] as f32],
+                depth_range: 0.0 .. 1.0,
+            }]);
 
             recreate_swapchain = false;
         }
@@ -435,13 +422,41 @@ pub fn render() {
         // Because framebuffers contains an Arc on the old swapchain, we need to
         // recreate framebuffers as well.
         if framebuffers.is_none() {
-            let new_framebuffers = Some(images.iter().map(|image| {
+            framebuffers = Some(images.iter().map(|image| {
                 Arc::new(framebuffer::Framebuffer::start(render_pass.clone())
                     .add(image.clone()).unwrap()
                     .add(depth_buffer.clone()).unwrap()
                     .build().unwrap())
             }).collect::<Vec<_>>());
-            std::mem::replace(&mut framebuffers, new_framebuffers);
+        }
+
+        let mut uniform_buffer_subbuffers = HashMap::new();
+
+        for (shape_id, shape) in scene.shapes.clone() {  // todo remove this clone somehow!
+            uniform_buffer_subbuffers.insert(shape_id, {
+                let uniform_data = vs::ty::Data {
+                    // todo don't repeat things other than model here!!
+                    model: transforms::model(&shape.position, &shape.orientation, shape.scale),
+                    view: transforms::view(&scene.cam.position, &scene.cam.θ),
+                    proj: transforms::proj(&scene.cam),
+
+                    ambient_color: scene.lighting.ambient_color,
+                    diffuse_color: scene.lighting.diffuse_color,
+                    // Homogenize.
+                    diffuse_direction: [
+                        scene.lighting.diffuse_direction[0],
+                        scene.lighting.diffuse_direction[1],
+                        scene.lighting.diffuse_direction[2],
+                        1.
+                    ],
+
+                    ambient_intensity: scene.lighting.ambient_intensity,
+                    diffuse_intensity: scene.lighting.diffuse_intensity,
+                    shape_opacity: 1.,
+                };
+
+                uniform_buffer.next(uniform_data).unwrap()
+            });
         }
 
         // Before we can draw on the output, we have to *acquire* an image from the swapchain. If
@@ -461,7 +476,7 @@ pub fn render() {
         };
 
         let mut command_buffer_ = command_buffer::AutoCommandBufferBuilder::primary_one_time_submit(
-            device_.clone(), queue.family()).unwrap()
+                device_.clone(), queue.family()).unwrap()
             // Before we can draw, we have to *enter a render pass*. There are two methods to do
             // this: `draw_inline` and `draw_secondary`. The latter is a bit more advanced and is
             // not covered here.
@@ -472,34 +487,15 @@ pub fn render() {
             .begin_render_pass(
                 framebuffers.as_ref().unwrap()[image_num].clone(), false,
                 vec![
-                    [0.0, 0.0, 0.0, 0.0].into(),
+                    [0.0, 0.0, 0.0, 1.0].into(),
                     1f32.into()
                 ]
             ).unwrap();
 
-        // We update the projection Mat each frame to account for zoom changes.
-        // todo: We should only update it when the zoom changes.
-        uniforms.proj = transforms::proj(&scene.cam);
-
-        // Update the view matrix once per frame.
-        uniforms.view = transforms::view(&scene.cam.position, &scene.cam.θ);
-
-//        println!("{:?} view", &uniforms.view);
-
+        // todo this is probably the root of your performance prob. Reattack dimensions
+        // todo renderer when fixed.
         for (shape_id, shape) in &scene.shapes {
-            let uniform_buffer_subbuffer = {
-                let uniform_data = vs::ty::Data {
-                    model: transforms::model(
-                        &shape.position,
-                        &shape.orientation,
-                        shape.scale
-                    ),
-                    shape_opacity: shape.opacity,
-                    ..uniforms
-                };
-
-                uniform_buffer.next(uniform_data).unwrap()
-            };
+            let uniform_buffer_subbuffer = uniform_buffer_subbuffers[shape_id].clone();  // todo clone remove?
 
             let set = Arc::new(descriptor::descriptor_set::PersistentDescriptorSet::start(pipeline_.clone(), 0)
                 .add_buffer(uniform_buffer_subbuffer).unwrap()
@@ -514,7 +510,7 @@ pub fn render() {
                 pipeline_.clone(),
                 &dynamic_state,
                 vertex_buffers[shape_id].clone(),
-                index_buffers[shape_id].clone(), set, ()
+                index_buffers[shape_id].clone(), set.clone(), ()
             ).unwrap();
         }
 

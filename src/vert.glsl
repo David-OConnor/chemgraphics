@@ -2,7 +2,8 @@
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 normal;
-layout(location = 2) in float specular_intensity;
+layout(location = 2) in vec4 face_color;
+layout(location = 3) in float specular_intensity;
 
 layout(location = 0) out vec4 color;
 
@@ -35,6 +36,7 @@ void main() {
     gl_Position = uniforms.proj * uniforms.view * uniforms.model * position;
 
     vec4 diffuse_color = find_diffuse_color();
-    color = diffuse_color;
+//    color = diffuse_color;
+    color = face_color;
 //    color = vec4(1., 0., 0., 1.);
 }

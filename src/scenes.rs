@@ -20,8 +20,8 @@ const base_camera: Camera = Camera {
     position: [0., 1., 2.],
     θ: [0., 0., 0.],
     fov: τ / 5.,
-    aspect: 1.,
-    near: 0.1,
+    aspect: 4./3.,
+    near: 0.02,
     far: 100.,
 };
 
@@ -40,8 +40,8 @@ fn make_scene(aspect: f32, shapes: Vec<Shape>) -> Scene {
 
 pub fn scene_1(aspect: f32) -> Scene {
     make_scene(aspect, vec![
-        Shape::new(shape_maker::cube(0.5), [0., 0., 0.], [0., 0., 0.]),
-        Shape::new(shape_maker::cube(0.5), [0.4, 0., 0.], [0., 0., 0.]),
+        Shape::new(shape_maker::cube(0.5), [0., 0., 0.], [0., τ/8., 0.]),
+//        Shape::new(shape_maker::cube(0.5), [1., 0., 2.], [0., 0., 0.]),
     ])
 }
 

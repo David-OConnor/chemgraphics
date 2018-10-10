@@ -118,6 +118,7 @@ pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
     let n = cam.near;
     let f = cam.far;
 
+
 //    [
 //        [2.*n / (r - l), 0., (r+l) / (2.*(r-l)), (r+l) / (2.*(r-l))],
 //        [0., -2.*n / (t-b), (t+b) / (2.*(t-b)), (t+b) / (2.*(t-b))],
@@ -143,7 +144,7 @@ pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
         // u_scale is, ultimately, not really used.
         // This row allows us to divide by z after taking the dot product,
         // as part of our scaling operation.
-        [0., 0., -0.5, -1.],  // todo last val -1. ? -0.5 ?
+        [0., 0., 0.5, 1.],  //
     ]
 
 }
@@ -155,8 +156,13 @@ pub fn model(position: &[f32; 3], orientation: &[f32; 3], scale_val: f32) -> [[f
     let R = rotate(orientation);
     let S = scale(scale_val);
     let T = translate(position);
-    
-    dot_mm4(T, dot_mm4(S, R))
+
+//    R
+
+//    dot_mm4(T, R)
+
+//    dot_mm4(T, dot_mm4(R, S))
+    I4()
 }
 
 pub fn view(position: &[f32; 3], θ: &[f32; 3]) -> [[f32; 4]; 4] {
@@ -165,6 +171,7 @@ pub fn view(position: &[f32; 3], θ: &[f32; 3]) -> [[f32; 4]; 4] {
     let R = rotate(θ);
 
     dot_mm4(R, T)
+//    I4()
 }
 
 
