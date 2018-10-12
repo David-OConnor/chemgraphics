@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::ops::{Add, Sub, Mul};
 
-use ndarray::prelude::*;
-
 // todo ndarrays, or builtin arrays? We need to enforce length of items.
 
 //#[derive(Debug)]
@@ -111,21 +109,20 @@ pub struct ShaderVertex {
 //    pub normal: (f32, f32, f32, f32),
 //    pub face_color: (f32, f32, f32, f32),
 
-    pub position: [f32; 4],
-    pub normal: [f32; 4],
+    pub position: [f32; 3],
+    pub normal: [f32; 3],
     pub face_color: [f32; 4],
-
     pub specular_intensity: f32,
 }
 
 impl ShaderVertex {
-    pub fn new(posit: Vertex, norm: Normal, color: [f32; 4], specular_intensity: f32) -> ShaderVertex {
+    pub fn new(posit: Vertex, norm: Normal, face_color: [f32; 4], specular_intensity: f32) -> ShaderVertex {
         // Helper function for making position and normal homogenous, and including
         // the shape's position in the vertex's.
         ShaderVertex {
-            position: [posit.position[0], posit.position[1], posit.position[2], 1.],
-            normal: [norm.normal[0], norm.normal[1], norm.normal[2], 1.],
-            face_color: [color[0], color[1], color[2], color[3]],
+            position: posit.position,
+            normal: norm.normal,
+            face_color,
             specular_intensity,
         }
     }
@@ -139,14 +136,14 @@ pub struct Mesh {
     pub faces_vert: Vec<Vec<u32>>,  // Indicies of vertexes.
     pub face_colors: Vec<[f32; 4]>,  // These index corresopnd to faces_vert indices.
     pub normals: Vec<Normal>,  // Normals only use the 3d component; not defined for 4d, yet. ?
-    pub tris: Array1<u32>,
+    pub tris: Vec<u32>,
 }
 
 impl Mesh {
     pub fn new(vertices: HashMap<u32, Vertex>,
                faces_vert: Vec<Vec<u32>>, face_colors: Vec<[f32; 4]>, normals: Vec<Normal>) -> Mesh {
 
-        let mut result = Mesh {vertices, faces_vert, face_colors, normals, tris: array![]};
+        let mut result = Mesh {vertices, faces_vert, face_colors, normals, tris: Vec::new()};
         result.make_tris();
         result
     }
@@ -184,7 +181,7 @@ impl Mesh {
             }
             current_i += face.len();
         }
-        self.tris = Array::from_vec(result)
+        self.tris = result
     }
 
     pub fn num_face_verts(&self) -> u32 {
@@ -216,7 +213,8 @@ impl Shape {
             orientation,
             rotation_speed: [0., 0., 0.],
             opacity: 1.,
-            specular_intensity: 1. }
+            specular_intensity: 1.
+        }
     }
 }
 

@@ -11,14 +11,14 @@ const base_lighting: Lighting = Lighting {
         ambient_intensity: 0.8,
         diffuse_intensity: 0.6,
         ambient_color: [1.0, 1.0, 1.0, 0.6],
-        diffuse_color: [1., 1., 1., 1.0],
-        diffuse_direction: [0., 0., -1.],
+        diffuse_color: [0., 0., 0.3, 1.0],
+        diffuse_direction: [0., 0., 1.],
         sources: Vec::new(),
 };
 
 const base_camera: Camera = Camera {
-    position: [0., 1., 2.],
-    θ: [0., 0., 0.],
+    position: [0., 1., 3.],
+    θ: [-τ/8., 0., 0.],
     fov: τ / 5.,
     aspect: 4./3.,
     near: 0.02,
@@ -34,14 +34,16 @@ fn make_scene(aspect: f32, shapes: Vec<Shape>) -> Scene {
         cam: base_camera,
         cam_type: CameraType::Free,
         lighting: base_lighting,
-        sensitivities: (2.5, 0.5, 0.2),
+        sensitivities: (0.6, 0.5, 0.2),
     }
 }
 
 pub fn scene_1(aspect: f32) -> Scene {
     make_scene(aspect, vec![
-        Shape::new(shape_maker::cube(0.5), [0., 0., 0.], [0., τ/8., 0.]),
-//        Shape::new(shape_maker::cube(0.5), [1., 0., 2.], [0., 0., 0.]),
+        Shape::new(shape_maker::cube(1.), [1., 0., 1.], [0., τ/8., 0.]),
+        Shape::new(shape_maker::cube(1.), [-1., 0., 1.], [0., τ/8., 0.]),
+        Shape::new(shape_maker::cube(1.), [1., 0., -1.], [0., τ/8., 0.]),
+        Shape::new(shape_maker::cube(1.), [-1., 0., -1.], [0., τ/8., 0.]),
     ])
 }
 

@@ -11,25 +11,25 @@ use std::collections::HashMap;
 use std::f32::consts::PI;
 use std::sync::Arc;
 use std::time;
-use std;
 
 use vulkano::buffer;
 use vulkano::buffer::cpu_access::CpuAccessibleBuffer;
 use vulkano::command_buffer;
 use vulkano::descriptor;
 use vulkano::device;
-use vulkano::format::{ClearValue, Format};
+//use vulkano::format::{ClearValue, Format};
+use vulkano::format::{ClearValue};
 use vulkano::format;
 use vulkano::framebuffer;
 use vulkano::image;
 use vulkano::instance;
-use vulkano::memory;
+//use vulkano::memory;
 use vulkano::pipeline;
 use vulkano::swapchain;
 use vulkano::sync;
 use vulkano::sync::GpuFuture;
 
-use vulkano_shader_derive;
+//use vulkano_shader_derive;
 use vulkano_win;
 use vulkano_win::VkSurfaceBuild;
 use winit;
@@ -37,12 +37,10 @@ use winit;
 use input;
 use scenes;
 use transforms;
-use types::{Shape, Vec4, ShaderVertex};
+use types::{Shape, ShaderVertex};
 
 const WIDTH: u32 = 1024;
 const HEIGHT: u32 = 768;
-
-const τ: f32 = 2. * PI;
 
 mod vs {
     #[derive(VulkanoShader)]
@@ -443,13 +441,7 @@ pub fn render() {
                     ambient_color: scene.lighting.ambient_color,
                     diffuse_color: scene.lighting.diffuse_color,
                     // Homogenize.
-                    diffuse_direction: [
-                        scene.lighting.diffuse_direction[0],
-                        scene.lighting.diffuse_direction[1],
-                        scene.lighting.diffuse_direction[2],
-                        1.
-                    ],
-
+                    diffuse_direction: scene.lighting.diffuse_direction,
                     ambient_intensity: scene.lighting.ambient_intensity,
                     diffuse_intensity: scene.lighting.diffuse_intensity,
                     shape_opacity: 1.,

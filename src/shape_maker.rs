@@ -199,8 +199,4 @@ fn avg_normals(normals: Vec<Normal>) -> Normal {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_cube() {
-
-    }
 }

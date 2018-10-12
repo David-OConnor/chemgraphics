@@ -9,8 +9,12 @@ const τ: f32 = 2. * PI;
 
 
 // todo could move this to a util file.
-fn add_arr(arr1: [f32; 3], arr2: [f32; 3]) -> [f32; 3] {
+fn add_arr(arr1: &[f32; 3], arr2: &[f32; 3]) -> [f32; 3] {
     [arr1[0] + arr2[0], arr1[1] + arr2[1], arr1[2] + arr2[2]]
+}
+
+fn mul_arr(arr: &[f32; 3], val: f32) -> [f32; 3] {
+    [arr[0] * val, arr[1] * val, arr[2] * val]
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -35,12 +39,13 @@ pub fn move_camera(direction: MoveDirection, θ: &[f32; 3], amount: f32) -> [f32
     };
 
 //    let v = transforms::dot_mv4(transforms::rotate(&θ), Vec4::from_array(&unit_vec));
-    let v: Vec4 = unit_vec.into();
+//    let v: Vec4 = unit_vec.into();
 
-    // De-homogenize
-    [
-        v.x * amount, v.y * amount, v.z * amount
-    ]
+//    [
+//        v.x * amount, v.y * amount, v.z * amount
+//    ]
+
+    mul_arr(&unit_vec, amount)
 
 }
 
@@ -60,46 +65,46 @@ pub fn handle_pressed<'a>(pressed: &[u32], delta_time: f32,
             17 => {  // W
                 match scene.cam_type {
                     CameraType::Single => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Forward, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Forward, &scene.cam.θ, move_amount))
                 }
             },
             31 => {  // S
                 match scene.cam_type {
                     CameraType::Single => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Back, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Back, &scene.cam.θ, move_amount))
                 }
             },
             30 => {  // A
                 match scene.cam_type {
                     CameraType::Single => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Left, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Left, &scene.cam.θ, move_amount))
                 }
             },
             32 => {  // D
                 match scene.cam_type {
                     CameraType::Single => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Right, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Right, &scene.cam.θ, move_amount))
                 }
             },
             46 => {  // C
                 match scene.cam_type {
                     CameraType::Single => (),
                     CameraType::FPS => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Down, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Down, &scene.cam.θ, move_amount))
                 }
             },
             29 => {  // Lctrl
                 match scene.cam_type {
                     CameraType::Single => (),
                     CameraType::FPS => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Down, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Down, &scene.cam.θ, move_amount))
                 }
             },
             57 => {  // Space
                 match scene.cam_type {
                     CameraType::Single => (),
                     CameraType::FPS => (),
-                    _ => scene.cam.position = add_arr(scene.cam.position, move_camera(MoveDirection::Up, &scene.cam.θ, move_amount))
+                    _ => scene.cam.position = add_arr(&scene.cam.position, &move_camera(MoveDirection::Up, &scene.cam.θ, move_amount))
                 }
             },
  
@@ -114,7 +119,7 @@ pub fn handle_pressed<'a>(pressed: &[u32], delta_time: f32,
             77 => {  // Right
                 match scene.cam_type {
                     CameraType::Single => shape.orientation[1] += rotate_amount,
-                    _ => scene.cam.θ[1]   += rotate_amount
+                    _ => scene.cam.θ[1] += rotate_amount
                 }
             },
             // Don't allow us to look greater than τ/4 up or down.
