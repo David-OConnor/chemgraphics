@@ -234,7 +234,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn view_size(&self, far: bool) -> (f32, f32){
+    pub fn _view_size(&self, far: bool) -> (f32, f32){
         // Calculate the projected window width and height, using basic trig.
         let dist = if far { self.far } else { self.near };
 
@@ -281,3 +281,8 @@ pub struct Scene {
     pub lighting: Lighting,
     pub sensitivities: (f32, f32, f32),  // move, rotate, zoom
 }
+
+//#[derive(Debug)]
+//pub struct _Animation {
+//    pub frames: HashMap<f32, Scene>  // <time, scene>
+//}

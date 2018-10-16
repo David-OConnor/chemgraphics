@@ -22,6 +22,7 @@ extern crate winit;
 extern crate vulkano_win;
 
 mod input;
+mod ops;
 mod scenes;
 mod shape_maker;
 mod types;

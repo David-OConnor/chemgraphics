@@ -8,12 +8,16 @@ layout(location = 3) in float specular_intensity;
 layout(location = 0) out vec3 v_normal;
 layout(location = 1) out vec4 face_color2;
 layout(location = 2) out vec3 diffuse_direction;
-layout(location = 3) out vec4 diffuse_color;
+layout(location = 3) out vec4 ambient_color;
 
 layout(set = 0, binding = 0) uniform Data {
     mat4 model;
     mat4 view;
     mat4 proj;
+    mat4 t;
+    mat4 r;
+    mat4 r_model;
+    mat4 t_model;
 
     vec4 ambient_color;
     vec4 diffuse_color;
@@ -27,11 +31,16 @@ layout(set = 0, binding = 0) uniform Data {
 
 void main() {
     // gl_Position is a builtin name used to output the projected point.
-    mat4 worldview = uniforms.view * uniforms.model;
-    v_normal = transpose(inverse(mat3(worldview))) * normal;
+//    mat4 worldview = uniforms.view * uniforms.model;
+
+    mat4 worldview = uniforms.r * uniforms.t * uniforms.model;
+
+//    v_normal = transpose(inverse(mat3(worldview))) * normal;
+    v_normal = transpose(inverse(mat3(uniforms.r_model))) * normal;
 
     gl_Position = uniforms.proj * worldview * vec4(position, 1.);
+
     face_color2 = face_color;
     diffuse_direction = uniforms.diffuse_direction;
-    diffuse_color = uniforms.diffuse_color;
+    ambient_color = uniforms.ambient_color;
 }

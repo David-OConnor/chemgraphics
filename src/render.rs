@@ -8,7 +8,6 @@
 // according to those terms.
 
 use std::collections::HashMap;
-use std::f32::consts::PI;
 use std::sync::Arc;
 use std::time;
 
@@ -18,7 +17,6 @@ use vulkano::command_buffer;
 use vulkano::descriptor;
 use vulkano::device;
 //use vulkano::format::{ClearValue, Format};
-use vulkano::format::{ClearValue};
 use vulkano::format;
 use vulkano::framebuffer;
 use vulkano::image;
@@ -35,6 +33,7 @@ use vulkano_win::VkSurfaceBuild;
 use winit;
 
 use input;
+use ops;
 use scenes;
 use transforms;
 use types::{Shape, ShaderVertex};
@@ -58,7 +57,7 @@ mod fs {
     struct Dummy;
 }
 
-pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Device>) ->
+pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Device>) ->  // todo cp
         (HashMap<u32, Arc<CpuAccessibleBuffer<[u32]>>>, HashMap<u32, Arc<CpuAccessibleBuffer<[ShaderVertex]>>>) {
     // Make index and vertex buffers.
     let mut index_buffers = HashMap::new();
@@ -77,7 +76,14 @@ pub fn make_static_buffers(shapes: &HashMap<u32, Shape>, device: Arc<device::Dev
         // Iterate over faces; each vertice is used once per face.
         for (i, face) in shape.mesh.faces_vert.iter().enumerate() {
             for vert_id in face {
-                vertex_info.push(
+//                vertex_info.push(
+//                    ShaderVertex::new(
+//                        shape.mesh.vertices[vert_id],
+//                        shape.mesh.normals[i],
+//                        shape.mesh.face_colors[i],
+//                        shape.specular_intensity,
+//                    )
+                                vertex_info.push(
                     ShaderVertex::new(
                         shape.mesh.vertices[vert_id],
                         shape.mesh.normals[i],
@@ -430,18 +436,41 @@ pub fn render() {
 
         let mut uniform_buffer_subbuffers = HashMap::new();
 
+        // Cache these transforms here, so it doesn't updated each shape.
+
+        let view = transforms::view(&scene.cam.position, &scene.cam.θ);
+        let proj = transforms::proj(&scene.cam);
+        let cp =  [
+            scene.cam.position[0], scene.cam.position[1], scene.cam.position[2], 0.
+        ];  // todo temp
+
+        // todo temp
+        let inv_posit = ops::mul_arr(&scene.cam.position, -1.);
+        let inv_θ = ops::mul_arr(&scene.cam.θ, -1.);
+        let r = transforms::rotate(&inv_θ);  // todo temp
+        let t = transforms::translate(&inv_posit);
+
         for (shape_id, shape) in scene.shapes.clone() {  // todo remove this clone somehow!
             uniform_buffer_subbuffers.insert(shape_id, {
                 let uniform_data = vs::ty::Data {
                     // todo don't repeat things other than model here!!
                     model: transforms::model(&shape.position, &shape.orientation, shape.scale),
-                    view: transforms::view(&scene.cam.position, &scene.cam.θ),
-                    proj: transforms::proj(&scene.cam),
+
+                    r_model: transforms::rotate(&shape.orientation),
+                    t_model: transforms::translate(&shape.position),
+
+                    view,
+                    proj,
+                    t,  // todo temp
+                    r,  // todo temp
 
                     ambient_color: scene.lighting.ambient_color,
                     diffuse_color: scene.lighting.diffuse_color,
                     // Homogenize.
                     diffuse_direction: scene.lighting.diffuse_direction,
+
+
+
                     ambient_intensity: scene.lighting.ambient_intensity,
                     diffuse_intensity: scene.lighting.diffuse_intensity,
                     shape_opacity: 1.,

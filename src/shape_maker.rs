@@ -3,8 +3,7 @@ use std::collections::HashMap;
 
 use ndarray::prelude::*;
 
-use transforms;
-use types::{Vertex, Mesh, Normal, Shape};
+use types::{Vertex, Mesh, Normal};
 
 fn add(left: &Vec<u32>, val: u32) -> Vec<u32> {
     left.iter().map(|item| item + val).collect()

@@ -1,21 +1,11 @@
 // Handles keyboard and mouse input.
-use std::collections::HashMap;
 use std::f32::consts::PI;
 
+use ops::{add_arr, mul_arr};
 use transforms;
-use types::{Camera, CameraType, Scene, Vec4};
+use types::{CameraType, Scene, Vec4};
 
 const τ: f32 = 2. * PI;
-
-
-// todo could move this to a util file.
-fn add_arr(arr1: &[f32; 3], arr2: &[f32; 3]) -> [f32; 3] {
-    [arr1[0] + arr2[0], arr1[1] + arr2[1], arr1[2] + arr2[2]]
-}
-
-fn mul_arr(arr: &[f32; 3], val: f32) -> [f32; 3] {
-    [arr[0] * val, arr[1] * val, arr[2] * val]
-}
 
 #[derive(Copy, Clone, Debug)]
 pub enum MoveDirection{

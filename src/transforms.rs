@@ -1,13 +1,6 @@
+use ops::{dot, transpose, mul_arr};
 use types::{Camera, Vec4};
 
-pub fn transpose(M: [[f32; 4]; 4]) -> [[f32; 4]; 4] {
-    [
-        [M[0][0], M[1][0], M[2][0], M[3][0]],
-        [M[0][1], M[1][1], M[2][1], M[3][1]],
-        [M[0][2], M[1][2], M[2][2], M[3][2]],
-        [M[0][3], M[1][3], M[2][3], M[3][3]],
-    ]
-}
 
 pub fn _dot_mv4(M: [[f32; 4]; 4], v: Vec4) -> Vec4 {
     // Dot a len-4 matrix with a vec.
@@ -17,43 +10,6 @@ pub fn _dot_mv4(M: [[f32; 4]; 4], v: Vec4) -> Vec4 {
         v.x*M[2][0] + v.y*M[2][1] + v.z*M[2][2] + v.w*M[2][3],
         v.x*M[3][0] + v.y*M[3][1] + v.z*M[3][2] + v.w*M[3][3]
     )
-}
-
-pub fn dot_mm4(M0: [[f32; 4]; 4], M1: [[f32; 4]; 4]) -> [[f32; 4]; 4] {
-    // Dot a len-4 matrix with another matrix.
-    [
-        // Row 0
-        [
-            M0[0][0]*M1[0][0] + M0[0][1]*M1[1][0] + M0[0][2]*M1[2][0] + M0[0][3]*M1[3][0],
-            M0[0][0]*M1[0][1] + M0[0][1]*M1[1][1] + M0[0][2]*M1[2][1] + M0[0][3]*M1[3][1],
-            M0[0][0]*M1[0][2] + M0[0][1]*M1[1][2] + M0[0][2]*M1[2][2] + M0[0][3]*M1[3][2],
-            M0[0][0]*M1[0][3] + M0[0][1]*M1[1][3] + M0[0][2]*M1[2][3] + M0[0][3]*M1[3][3]
-        ],
-
-        // Row 1
-        [
-            M0[1][0]*M1[0][0] + M0[1][1]*M1[1][0] + M0[1][2]*M1[2][0] + M0[1][3]*M1[3][0],
-            M0[1][0]*M1[0][1] + M0[1][1]*M1[1][1] + M0[1][2]*M1[2][1] + M0[1][3]*M1[3][1],
-            M0[1][0]*M1[0][2] + M0[1][1]*M1[1][2] + M0[1][2]*M1[2][2] + M0[1][3]*M1[3][2],
-            M0[1][0]*M1[0][3] + M0[1][1]*M1[1][3] + M0[1][2]*M1[2][3] + M0[1][3]*M1[3][3]
-        ],
-
-        // Row 2
-        [
-            M0[2][0]*M1[0][0] + M0[2][1]*M1[1][0] + M0[2][2]*M1[2][0] + M0[2][3]*M1[3][0],
-            M0[2][0]*M1[0][1] + M0[2][1]*M1[1][1] + M0[2][2]*M1[2][1] + M0[2][3]*M1[3][1],
-            M0[2][0]*M1[0][2] + M0[2][1]*M1[1][2] + M0[2][2]*M1[2][2] + M0[2][3]*M1[3][2],
-            M0[2][0]*M1[0][3] + M0[2][1]*M1[1][3] + M0[2][2]*M1[2][3] + M0[2][3]*M1[3][3]
-        ],
-
-        // Row 3
-        [
-            M0[3][0]*M1[0][0] + M0[3][1]*M1[1][0] + M0[3][2]*M1[2][0] + M0[3][3]*M1[3][0],
-            M0[3][0]*M1[0][1] + M0[3][1]*M1[1][1] + M0[3][2]*M1[2][1] + M0[3][3]*M1[3][1],
-            M0[3][0]*M1[0][2] + M0[3][1]*M1[1][2] + M0[3][2]*M1[2][2] + M0[3][3]*M1[3][2],
-            M0[3][0]*M1[0][3] + M0[3][1]*M1[1][3] + M0[3][2]*M1[2][3] + M0[3][3]*M1[3][3]
-        ],
-    ]
 }
 
 pub fn _I4() -> [[f32; 4]; 4] {
@@ -96,17 +52,19 @@ pub fn rotate(θ: &[f32; 3]) -> [[f32; 4]; 4] {
         [0., 0., 0., 1.],
     ];
 
-    dot_mm4(R_z, dot_mm4(R_y, R_x))
+
+//    dot(transpose(R_z), dot(transpose(R_y), transpose(R_x)))
+    dot(R_z, dot(R_y, R_x))
 }
 
-fn translate(position: &[f32; 3]) -> [[f32; 4]; 4] {
+pub fn translate(position: &[f32; 3]) -> [[f32; 4]; 4] {
     // Return a homogenous translation matrix.
-    [
+    transpose([
         [1., 0., 0., position[0]],
         [0., 1., 0., position[1]],
         [0., 0., 1., position[2]],
         [0., 0., 0., 1.],
-    ]
+    ])
 }
 
 fn scale(val: f32) -> [[f32; 4]; 4] {
@@ -123,66 +81,59 @@ fn scale(val: f32) -> [[f32; 4]; 4] {
 pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
     // Return a homogenous matrix of the type used by vulkan.
 
-    // Apply this transform:
-    // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-    // To the matrix here:
-    // http://www.songho.ca/opengl/gl_projectionmatrix.html
+    // x and y map from -1 to +1, left to right, and top to bottom respectively.
+    // z maps from 0 to 1, back to front.
 
-    let t = (cam.fov / 2.).tan() * cam.near;
-    let b = -t;
-    let r = t * cam.aspect;
-    let l = -t * cam.aspect;
-    let n = cam.near;
+    // This seems to be the (only?) Reasonable OpenGL-style projection matrix I've
+    // found online... But it's missing the changes Vulkan introduces.
+    // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
+
+    // Ref drawing in CG notebook. It's remarkably difficult to find reliable and clear
+    // info on this online.
+
+    let a = 1. / (cam.fov / 2.).tan();
+    let n = cam.near;  // n and f are code-shorteners.
     let f = cam.far;
 
-
 //    [
-//        [2.*n / (r - l), 0., (r+l) / (2.*(r-l)), (r+l) / (2.*(r-l))],
-//        [0., -2.*n / (t-b), (t+b) / (2.*(t-b)), (t+b) / (2.*(t-b))],
-//        [0., 0., -(f+n) / (2.*(f-n)), -(2.*f*n) / (f-n) + -(f+n) / (2.*(f-n))],
-//        [0., 0., -0.5, -0.5],
+//        [a / cam.aspect, 0., 0., 0.],
+//        [0., -a, 0., 0.],
+////        [0., 0., f / (f-n), f*n / (f-n)],
+//        // todo temporary linear mapping
+//        [0., 0., (f + n)/(f-n), -2.*f*n / (f-n)],
+//        [0., 0., 1., 0.]  // Preserve z, since we need to divide x and y by it after matrix multiplication.
 //    ]
-////    // todo test
-//    let r = -l;
-//    let t = -b;
 //
-//
-//    [
-//        [1./r, 0., 0., 0.],
-//        [0., 1./t, 0., 0.],
-//        [0., 0., -2./(f-n), -(f+n) / (f-n)],
-//        [0., 0., 0., 1.],
-//    ]
 
     [
-        [2.*n / (r - l), 0., (r+l) / (r-l) / 2., 0.],
-        [0., -2.*n / (t-b), (t+b) / (t-b) / 2., (b+t) / (t-b) / 2.],
-        [0., 0., -(f+n) / (f-n) / 2., -(2.*f*n) / (f-n) + (-f-n) / (f-n) / 2.],
+        [a / cam.aspect, 0., 0., 0.],
+        [0., -a, 0., 0.],
+        [0., 0., f / (f-n), -f*n/(f-n)],
         // u_scale is, ultimately, not really used.
         // This row allows us to divide by z after taking the dot product,
         // as part of our scaling operation.
-        [0., 0., 0.5, 1.],  //
+        [0., 0., 1., 0.],  //
     ]
 }
 
 pub fn model(position: &[f32; 3], orientation: &[f32; 3], scale_val: f32) -> [[f32; 4]; 4] {
-    // Return a model matrix that transforms, rotates, and scales, using homogenous
-    // coordinates.  Position last
-    let R = transpose(rotate(orientation));
-    let S = transpose(scale(scale_val));
-    let T = transpose(translate(position));
+    // Return a model matrix that transforms, rotates, and scales.  Position last
+    let R = rotate(orientation);
+    let S = scale(scale_val);
+    let T = translate(position);
 
-    dot_mm4(T, dot_mm4(R, S))
+    dot(T, dot(R, S))
 }
 
 pub fn view(position: &[f32; 3], θ: &[f32; 3]) -> [[f32; 4]; 4] {
     // Homogenous view matrix.  Position first
-    let inv_posit = [-position[0], -position[1], -position[2]];
+    let inv_posit = mul_arr(position, -1.);
+    let inv_θ = mul_arr(θ, -1.);
 
-    let T = transpose(translate(&inv_posit));
-    let R = transpose(rotate(θ));
+    let T = translate(&inv_posit);
+    let R = rotate(&inv_θ);
 
-    dot_mm4(R, T)
+    dot(R, T)
 }
 
 
@@ -190,30 +141,79 @@ pub fn view(position: &[f32; 3], θ: &[f32; 3]) -> [[f32; 4]; 4] {
 mod tests {
     use super::*;
 
-    #[test]
-    fn dot_A() {
+    use std::f32::consts::PI;
+    use ops::{dot_v, div_arr4};
+    use types::Camera;
 
-        let a = [
-            [1., 2., 3., 4.],
-            [4., 2., 1., -1.],
-            [0., -4., 1., 3.],
-            [9., 1., -5., 1.],
-        ];
+    // These transforms assume a vulkan coordinate system: Y points down,
+    // Z points away. X and Y Range from -1 to 1. Z ranges from 0 to 1.
 
-        let b = [
-            [-1., 7., -2., 4.],
-            [4., 2., 1., -1.],
-            [0., -4., 1., 1.],
-            [4., 1., 10., -2.],
-        ];
+    const ϵ: f32 = 1e-7;
+    const τ: f32 = 2. * PI;
 
-        let expected = [
-            [23., 3., 43., -3.],
-            [0., 27., -15., 17.],
-            [-4., -9., 27., -1.],
-            [-1., 86., -12., 28.],
-        ];
-
-        assert_eq!(dot_mm4(a, b), expected);
+    fn arr_close(arr1: [f32; 4], arr2: [f32; 4]) -> bool {
+        (arr1[0] - arr2[0]).abs() < ϵ &&
+        (arr1[1] - arr2[1]).abs() < ϵ &&
+        (arr1[2] - arr2[2]).abs() < ϵ &&
+        (arr1[3] - arr2[3]).abs() < ϵ
     }
+
+    #[test]
+    fn proj_corners() {
+        // Ensure points on the corners of the frustrum map to corners on the
+        // clipspace (projected) cuboid. This doesn't ensure the projection matrix
+        // is correct; but can indicate a bogus one.
+        let cam = Camera {
+            position: [0., 0., 0.],
+            θ: [0., 0., 0.],
+            fov: τ / 4.,
+            aspect: 1.,
+            near: 1.,
+            far: 100.
+        };
+
+        let P = proj(&cam);
+        let wf = 200.;  // Width of the FOV at the far end. Also height.
+        let wn = 2.;  // ... at the near end.
+
+        // These four corners are for the top of the frustum.
+        let fwd_left = [-wf / 2., wf / 2., cam.far, 1.];
+        let fwd_right = [wf / 2., wf / 2., cam.far, 1.];
+        let aft_left = [-wn / 2., wn / 2., cam.near, 1.];
+        let aft_right = [wn / 2., wn / 2., cam.near, 1.];
+
+        // These are equivlants for the bottom.
+        let fwd_left_btm = [-wf / 2., -wf / 2., cam.far, 1.];
+        let fwd_right_btm = [wf / 2., -wf / 2., cam.far, 1.];
+        let aft_left_btm = [-wn / 2., -wn / 2., cam.near, 1.];
+        let aft_right_btm = [wn / 2., -wn / 2., cam.near, 1.];
+
+        let fl = dot_v(&P, fwd_left);
+        let fr = dot_v(&P, fwd_right);
+        let al = dot_v(&P, aft_left);
+        let ar = dot_v(&P, aft_right);
+
+        let fl_btm = dot_v(&P, fwd_left_btm);
+        let fr_btm = dot_v(&P, fwd_right_btm);
+        let al_btm = dot_v(&P, aft_left_btm);
+        let ar_btm = dot_v(&P, aft_right_btm);
+
+
+        // We divide by W, which is a the (unmodified) z component.
+        assert!(arr_close(div_arr4(&fl, fl[3]), [-1., -1., 1., 1.]));
+        assert!(arr_close(div_arr4(&fr, fr[3]), [1., -1., 1., 1.]));
+        assert!(arr_close(div_arr4(&al, al[3]), [-1., -1., 0., 1.]));
+        assert!(arr_close(div_arr4(&ar, ar[3]), [1., -1., 0., 1.]));
+
+        assert!(arr_close(div_arr4(&fl_btm, fl_btm[3]), [-1., 1., 1., 1.]));
+        assert!(arr_close(div_arr4(&fr_btm, fr_btm[3]), [1., 1., 1., 1.]));
+        assert!(arr_close(div_arr4(&al_btm, al_btm[3]), [-1., 1., 0., 1.]));
+        assert!(arr_close(div_arr4(&ar_btm, ar_btm[3]), [1., 1., 0., 1.]));
+    }
+
+//    #[test]
+//    fn depth_buffer() {
+//        // Make sure the nonlinear depth of the projection matrix works.
+//
+//    }
 }
