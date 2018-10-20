@@ -38,6 +38,7 @@ use scenes;
 use transforms;
 use types::{Shape, ShaderVertex};
 
+
 const WIDTH: u32 = 1024;
 const HEIGHT: u32 = 768;
 
@@ -163,7 +164,8 @@ pub fn render() {
     // This returns a `vulkano::swapchain::Surface` object that contains both a cross-platform winit
     // window and a cross-platform Vulkan surface that represents the surface of the window.
     let mut events_loop = winit::EventsLoop::new();
-    let surface = winit::WindowBuilder::new().build_vk_surface(&events_loop, instance_.clone()).unwrap();
+    let surface = winit::WindowBuilder::new().with_title("Chem graphics")
+        .build_vk_surface(&events_loop, instance_.clone()).unwrap();
 
     // The next step is to choose which GPU queue will execute our draw commands.
     //
@@ -313,7 +315,8 @@ pub fn render() {
 
     // Before we draw we have to create what is called a pipeline. This is similar to an OpenGL
     // program, but much more specific.
-    // Info on what we can configure here: https://docs.rs/vulkano/0.10.0/vulkano/pipeline/struct.GraphicsPipelineBuilder.html
+    // Info on what we can configure here:
+    // https://docs.rs/vulkano/0.10.0/vulkano/pipeline/struct.GraphicsPipelineBuilder.html
     // Leaving default options explicit here to make it easier to configure.
     let pipeline_ = Arc::new(pipeline::GraphicsPipeline::start()
         .vertex_input_single_buffer() // todo
@@ -327,6 +330,9 @@ pub fn render() {
         .viewports_dynamic_scissors_irrelevant(1)
         .fragment_shader(fs.main_entry_point(), ())
         .depth_stencil_simple_depth()
+        .depth_clamp(true)  // todo temp
+        .cull_mode_disabled()
+//        .cull_mode_back()
 
         // We have to indicate which subpass of which render pass this pipeline is going to be used
         // in. The pipeline will only be usable from this particular subpass.
@@ -440,15 +446,13 @@ pub fn render() {
 
         let view = transforms::view(&scene.cam.position, &scene.cam.θ);
         let proj = transforms::proj(&scene.cam);
-        let cp =  [
-            scene.cam.position[0], scene.cam.position[1], scene.cam.position[2], 0.
-        ];  // todo temp
+
+//        println!("gl {:?}", transforms::proj_gl(&scene.cam));
+//        println!("my {:?}", transforms::proj(&scene.cam));
 
         // todo temp
         let inv_posit = ops::mul_arr(&scene.cam.position, -1.);
         let inv_θ = ops::mul_arr(&scene.cam.θ, -1.);
-        let r = transforms::rotate(&inv_θ);  // todo temp
-        let t = transforms::translate(&inv_posit);
 
         for (shape_id, shape) in scene.shapes.clone() {  // todo remove this clone somehow!
             uniform_buffer_subbuffers.insert(shape_id, {
@@ -456,20 +460,16 @@ pub fn render() {
                     // todo don't repeat things other than model here!!
                     model: transforms::model(&shape.position, &shape.orientation, shape.scale),
 
+                    // todo temp
                     r_model: transforms::rotate(&shape.orientation),
-                    t_model: transforms::translate(&shape.position),
+                    t_model: ops::transpose(transforms::translate(&shape.position)),
 
                     view,
                     proj,
-                    t,  // todo temp
-                    r,  // todo temp
 
                     ambient_color: scene.lighting.ambient_color,
                     diffuse_color: scene.lighting.diffuse_color,
-                    // Homogenize.
                     diffuse_direction: scene.lighting.diffuse_direction,
-
-
 
                     ambient_intensity: scene.lighting.ambient_intensity,
                     diffuse_intensity: scene.lighting.diffuse_intensity,

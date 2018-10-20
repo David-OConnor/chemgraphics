@@ -6,6 +6,7 @@ layout(location = 2) in vec3 diffuse_direction;
 layout(location = 3) in vec4 ambient_color;
 // todo diffuse_color unused
 
+
 layout(location = 0) out vec4 f_color;
 
 //    float diffuse_weight = max(dot(norm, dir), 0.);

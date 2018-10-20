@@ -94,6 +94,7 @@ pub fn box_(lens: (f32, f32, f32)) -> Mesh {
         vec![1, 5, 6, 2],  // Right
     ];
 
+    // Front is yellow. Right is green. Top is red.
     let face_colors = vec![
        [1., 1., 0., 1.],  // Front
        [0., 1., 1., 1.],  // Back

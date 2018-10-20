@@ -59,12 +59,12 @@ pub fn rotate(θ: &[f32; 3]) -> [[f32; 4]; 4] {
 
 pub fn translate(position: &[f32; 3]) -> [[f32; 4]; 4] {
     // Return a homogenous translation matrix.
-    transpose([
+    [
         [1., 0., 0., position[0]],
         [0., 1., 0., position[1]],
         [0., 0., 1., position[2]],
         [0., 0., 0., 1.],
-    ])
+    ]
 }
 
 fn scale(val: f32) -> [[f32; 4]; 4] {
@@ -77,7 +77,6 @@ fn scale(val: f32) -> [[f32; 4]; 4] {
     ]
 }
 
-
 pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
     // Return a homogenous matrix of the type used by vulkan.
 
@@ -88,8 +87,7 @@ pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
     // found online... But it's missing the changes Vulkan introduces.
     // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
 
-    // Ref drawing in CG notebook. It's remarkably difficult to find reliable and clear
-    // info on this online.
+    // Ref drawing and calculations in CG notebook.
 
     let a = 1. / (cam.fov / 2.).tan();
     let n = cam.near;  // n and f are code-shorteners.
@@ -98,21 +96,38 @@ pub fn proj(cam: &Camera) -> [[f32; 4]; 4] {
 //    [
 //        [a / cam.aspect, 0., 0., 0.],
 //        [0., -a, 0., 0.],
-////        [0., 0., f / (f-n), f*n / (f-n)],
-//        // todo temporary linear mapping
-//        [0., 0., (f + n)/(f-n), -2.*f*n / (f-n)],
-//        [0., 0., 1., 0.]  // Preserve z, since we need to divide x and y by it after matrix multiplication.
+//        [0., 0., -f / (f-n), -f*n/(f-n)],  // todo mess with signs.
+//        [0., 0., -1., 0.],
 //    ]
-//
+    // todo can't get the above to work.
+    dot(
+        [
+            [a / cam.aspect, 0., 0., 0.],
+            [0., a, 0., 0.],
+            [0., 0., (f+n)/(f-n), 2.*f*n/(f-n)],  // negative of std opengl here ?
+            [0., 0., -1., 0.],
+        ],
+
+        [
+            [1., 0., 0., 0.],
+            [0., -1., 0., 0.],
+            [0., 0., 0.5, 0.5],
+            [0., 0., 0., 1.]
+        ]
+    )
+}
+
+pub fn proj_gl(cam: &Camera) -> [[f32; 4]; 4] {
+    // A projection matrix using openGL conventions.
+    let a = 1. / (cam.fov / 2.).tan();
+    let n = cam.near;
+    let f = cam.far;
 
     [
         [a / cam.aspect, 0., 0., 0.],
-        [0., -a, 0., 0.],
-        [0., 0., f / (f-n), -f*n/(f-n)],
-        // u_scale is, ultimately, not really used.
-        // This row allows us to divide by z after taking the dot product,
-        // as part of our scaling operation.
-        [0., 0., 1., 0.],  //
+        [0., a, 0., 0.],
+        [0., 0., -(f+n)/(f-n), -2.*f*n/(f-n)],
+        [0., 0., -1., 0.],
     ]
 }
 
@@ -133,7 +148,7 @@ pub fn view(position: &[f32; 3], θ: &[f32; 3]) -> [[f32; 4]; 4] {
     let T = translate(&inv_posit);
     let R = rotate(&inv_θ);
 
-    dot(R, T)
+    transpose(dot(R, T))
 }
 
 
@@ -177,16 +192,18 @@ mod tests {
         let wn = 2.;  // ... at the near end.
 
         // These four corners are for the top of the frustum.
-        let fwd_left = [-wf / 2., wf / 2., cam.far, 1.];
-        let fwd_right = [wf / 2., wf / 2., cam.far, 1.];
-        let aft_left = [-wn / 2., wn / 2., cam.near, 1.];
-        let aft_right = [wn / 2., wn / 2., cam.near, 1.];
+        // we use -near and -far due to clip plane/eyespace conventions, despite z poining
+        // forward in world space.
+        let fwd_left = [-wf / 2., wf / 2., -cam.far, 1.];
+        let fwd_right = [wf / 2., wf / 2., -cam.far, 1.];
+        let aft_left = [-wn / 2., wn / 2., -cam.near, 1.];
+        let aft_right = [wn / 2., wn / 2., -cam.near, 1.];
 
         // These are equivlants for the bottom.
-        let fwd_left_btm = [-wf / 2., -wf / 2., cam.far, 1.];
-        let fwd_right_btm = [wf / 2., -wf / 2., cam.far, 1.];
-        let aft_left_btm = [-wn / 2., -wn / 2., cam.near, 1.];
-        let aft_right_btm = [wn / 2., -wn / 2., cam.near, 1.];
+        let fwd_left_btm = [-wf / 2., -wf / 2., -cam.far, 1.];
+        let fwd_right_btm = [wf / 2., -wf / 2., -cam.far, 1.];
+        let aft_left_btm = [-wn / 2., -wn / 2., -cam.near, 1.];
+        let aft_right_btm = [wn / 2., -wn / 2., -cam.near, 1.];
 
         let fl = dot_v(&P, fwd_left);
         let fr = dot_v(&P, fwd_right);
@@ -214,6 +231,25 @@ mod tests {
 //    #[test]
 //    fn depth_buffer() {
 //        // Make sure the nonlinear depth of the projection matrix works.
+//           let cam = Camera {
+//            position: [0., 0., 0.],
+//            θ: [0., 0., 0.],
+//            fov: τ / 4.,
+//            aspect: 1.,
+//            near: 1.,
+//            far: 100.
+//        };
 //
+//        let P = proj(&cam);
+//        let wf = 200.;  // Width of the FOV at the far end. Also height.
+//        let wn = 2.;  // ... at the near end.
+//
+//        // These four corners are for the top of the frustum.
+//        let test_pt = [-90., 0., 100., 1.];
+//        let projected = dot_v(&P, test_pt);
+//
+//        // We divide by W, which is a the (unmodified) z component.
+////        assert!(arr_close(div_arr4(&fl, fl[3]), [-1., -1., 1., 1.]));
+//        assert_eq!(div_arr4(&projected, projected[3]), [-1., 0., 1., 1.]);
 //    }
 }

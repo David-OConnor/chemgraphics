@@ -2,19 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ecf8262a-e588-4d2d-8f8f-a61869bb3141" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/chemgraphics.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ops.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/input.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/input.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ops.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ops.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/render.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/scenes.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/scenes.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shape_maker.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shape_maker.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/transforms.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transforms.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/vert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/vert.glsl" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,26 +20,27 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="vert.glsl" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/vert.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="27" selection-start-line="27" selection-end-line="27" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ops.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ops.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
-              <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
-              <folding>
-                <element signature="e#314#315#0" expanded="true" />
-                <element signature="e#363#364#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="350">
+              <caret line="38" column="43" selection-start-line="38" selection-start-column="43" selection-end-line="38" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -52,7 +49,16 @@
         <entry file="file://$PROJECT_DIR$/src/frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="224">
-              <caret line="14" column="41" selection-start-line="14" selection-start-column="41" selection-end-line="14" selection-end-column="41" />
+              <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ops.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ops.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="560">
+              <caret line="37" column="1" selection-start-line="37" selection-start-column="1" selection-end-line="37" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -60,8 +66,17 @@
       <file leaf-file-name="render.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/render.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="450" column="48" selection-start-line="450" selection-start-column="48" selection-end-line="450" selection-end-column="48" />
+            <state relative-caret-position="182">
+              <caret line="448" selection-start-line="448" selection-end-line="448" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Cargo.toml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="96">
+              <caret line="6" column="15" selection-start-line="6" selection-start-column="15" selection-end-line="6" selection-end-column="15" />
             </state>
           </provider>
         </entry>
@@ -69,8 +84,8 @@
       <file leaf-file-name="types.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/types.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="679">
-              <caret line="237" column="64" selection-start-line="237" selection-start-column="64" selection-end-line="237" selection-end-column="64" />
+            <state relative-caret-position="151">
+              <caret line="186" column="39" selection-start-line="186" selection-start-column="39" selection-end-line="186" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -78,8 +93,8 @@
       <file leaf-file-name="transforms.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/transforms.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="101" column="37" selection-start-line="101" selection-start-column="37" selection-end-line="101" selection-end-column="37" />
+            <state relative-caret-position="66">
+              <caret line="96" column="39" lean-forward="true" selection-start-line="96" selection-start-column="39" selection-end-line="96" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -87,8 +102,8 @@
       <file leaf-file-name="scenes.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/scenes.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="10" column="31" lean-forward="true" selection-start-line="10" selection-start-column="31" selection-end-line="10" selection-end-column="31" />
+            <state relative-caret-position="176">
+              <caret line="11" column="31" lean-forward="true" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -96,8 +111,8 @@
       <file leaf-file-name="main.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="17" column="19" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
+            <state relative-caret-position="376">
+              <caret line="25" selection-start-line="25" selection-end-line="25" />
             </state>
           </provider>
         </entry>
@@ -105,17 +120,8 @@
       <file leaf-file-name="shape_maker.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shape_maker.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1408">
-              <caret line="90" column="33" selection-start-line="90" selection-start-column="33" selection-end-line="90" selection-end-column="33" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="input.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/input.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="17" column="1" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
+            <state relative-caret-position="247">
+              <caret line="96" column="51" selection-start-line="96" selection-start-column="51" selection-end-line="96" selection-end-column="51" />
             </state>
           </provider>
         </entry>
@@ -131,37 +137,40 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>array</find>
-      <find>transforms::m</find>
-      <find>test_cu</find>
-      <find>input::</find>
-      <find>transforms::view</find>
-      <find>shader_der</find>
-      <find>array1</find>
-      <find>diffuse_co</find>
-      <find>add(</find>
-      <find>transforms:</find>
-      <find>add_a</find>
-      <find>shaderv</find>
-      <find>cam</find>
-      <find>scene.cam.</find>
-      <find>make_stat</find>
-      <find>cp:</find>
-      <find>make_static_</find>
-      <find>r:</find>
-      <find>make_static</find>
-      <find>single</find>
-      <find>cp</find>
-      <find>uniform</find>
-      <find>land with</find>
-      <find>shader</find>
-      <find>vulkanosha</find>
-      <find>struct shape</find>
-      <find>t cam</find>
-      <find>vs</find>
-      <find>transforms::</find>
       <find>r =</find>
+      <find>let r</find>
+      <find>diffuse_di</find>
+      <find>mainten</find>
+      <find>pipelin</find>
+      <find>t_mod</find>
+      <find>subbu</find>
+      <find>let vs</find>
+      <find>f</find>
+      <find>t_model</find>
+      <find>pipeline</find>
+      <find>https:</find>
+      <find>r_mode</find>
+      <find>mul_a</find>
+      <find>transpo</find>
+      <find>cpua</find>
+      <find>std::</find>
+      <find>std:</find>
+      <find>cgmath</find>
+      <find>proj:</find>
+      <find>cg</find>
+      <find>https</find>
+      <find>proj</find>
+      <find>http</find>
+      <find>transforms:</find>
+      <find>winit</find>
+      <find>wini</find>
+      <find>_gl</find>
+      <find>(true)</find>
+      <find>transforms::</find>
     </findStrings>
+    <replaceStrings>
+      <replace>M</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -169,16 +178,16 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Cargo.toml" />
-        <option value="$PROJECT_DIR$/src/shape_maker.rs" />
         <option value="$PROJECT_DIR$/src/operations.rs" />
-        <option value="$PROJECT_DIR$/src/frag.glsl" />
         <option value="$PROJECT_DIR$/src/input.rs" />
-        <option value="$PROJECT_DIR$/src/main.rs" />
-        <option value="$PROJECT_DIR$/src/types.rs" />
         <option value="$PROJECT_DIR$/src/ops.rs" />
-        <option value="$PROJECT_DIR$/src/vert.glsl" />
+        <option value="$PROJECT_DIR$/src/frag.glsl" />
+        <option value="$PROJECT_DIR$/Cargo.toml" />
+        <option value="$PROJECT_DIR$/src/main.rs" />
+        <option value="$PROJECT_DIR$/src/shape_maker.rs" />
+        <option value="$PROJECT_DIR$/src/types.rs" />
         <option value="$PROJECT_DIR$/src/render.rs" />
+        <option value="$PROJECT_DIR$/src/vert.glsl" />
         <option value="$PROJECT_DIR$/src/transforms.rs" />
         <option value="$PROJECT_DIR$/src/scenes.rs" />
       </list>
@@ -194,16 +203,34 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="926" />
-    <option name="y" value="138" />
-    <option name="width" value="925" />
-    <option name="height" value="1004" />
+    <option name="x" value="893" />
+    <option name="y" value="56" />
+    <option name="width" value="987" />
+    <option name="height" value="1066" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="chemgraphics" type="b2602c69:ProjectViewProjectNode" />
+              <item name="chemgraphics" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="chemgraphics" type="b2602c69:ProjectViewProjectNode" />
+              <item name="chemgraphics" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -263,11 +290,18 @@
       <option name="project" value="LOCAL" />
       <updated>1539387876202</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Perspective projection now passes a basic test I made for Vulkan, although it's not currently displaying.">
+      <created>1539731627156</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1539731627156</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="926" y="138" width="925" height="1004" extended-state="0" />
+    <frame x="893" y="56" width="987" height="1066" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -277,10 +311,10 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.26720184" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.4992997" visible="true" weight="0.21330275" />
-      <window_info content_ui="combo" id="Project" order="0" weight="0.15964125" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.4992997" visible="true" weight="0.37259102" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.13372582" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="right" id="Database" order="3" />
+      <window_info anchor="right" id="Database" order="3" weight="0.32973316" />
       <window_info anchor="right" id="SciView" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -294,28 +328,28 @@
       <window_info anchor="bottom" id="Find" order="1" weight="0.32916668" />
     </layout>
     <layout-to-restore>
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Cargo" order="3" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info content_ui="combo" id="Project" order="0" weight="0.15964125" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32916668" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.26720184" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" id="Database" order="4" />
       <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.4992997" visible="true" weight="0.47821102" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5007003" side_tool="true" weight="0.45486936" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="SciView" order="5" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.26720184" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -329,9 +363,24 @@
     <MESSAGE value="More tweaks" />
     <MESSAGE value="Reworked many parts of render in a failed attempt to solve projection problem." />
     <MESSAGE value="Made progress in fixing projection issues: Applying a transpose to the matrices seems to work. Surpisingly (to me), this only has a major effect on the position matrix." />
-    <option name="LAST_COMMIT_MESSAGE" value="Made progress in fixing projection issues: Applying a transpose to the matrices seems to work. Surpisingly (to me), this only has a major effect on the position matrix." />
+    <MESSAGE value="Perspective projection now passes a basic test I made for Vulkan, although it's not currently displaying." />
+    <option name="LAST_COMMIT_MESSAGE" value="Perspective projection now passes a basic test I made for Vulkan, although it's not currently displaying." />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/shape_maker.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1408">
+          <caret line="90" column="33" selection-start-line="90" selection-start-column="33" selection-end-line="90" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/transforms.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1472">
+          <caret line="92" lean-forward="true" selection-start-line="92" selection-end-line="92" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/vert.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
@@ -343,10 +392,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="256">
           <caret line="16" column="60" lean-forward="true" selection-start-line="16" selection-start-column="60" selection-end-line="16" selection-end-column="60" />
-          <folding>
-            <element signature="e#314#315#0" expanded="true" />
-            <element signature="e#363#364#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -602,13 +647,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="14" selection-start-line="14" selection-end-line="14" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/input.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
@@ -616,70 +654,73 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/ops.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="560">
+          <caret line="37" column="1" selection-start-line="37" selection-start-column="1" selection-end-line="37" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="224">
-          <caret line="14" column="41" selection-start-line="14" selection-start-column="41" selection-end-line="14" selection-end-column="41" />
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shape_maker.rs">
+    <entry file="file://$PROJECT_DIR$/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1408">
-          <caret line="90" column="33" selection-start-line="90" selection-start-column="33" selection-end-line="90" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="19" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
+        <state relative-caret-position="96">
+          <caret line="6" column="15" selection-start-line="6" selection-start-column="15" selection-end-line="6" selection-end-column="15" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/types.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="679">
-          <caret line="237" column="64" selection-start-line="237" selection-start-column="64" selection-end-line="237" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/vert.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="27" selection-start-line="27" selection-end-line="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ops.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
-          <folding>
-            <element signature="e#314#315#0" expanded="true" />
-            <element signature="e#363#364#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="151">
+          <caret line="186" column="39" selection-start-line="186" selection-start-column="39" selection-end-line="186" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/render.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="450" column="48" selection-start-line="450" selection-start-column="48" selection-end-line="450" selection-end-column="48" />
+        <state relative-caret-position="182">
+          <caret line="448" selection-start-line="448" selection-end-line="448" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/vert.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="350">
+          <caret line="38" column="43" selection-start-line="38" selection-start-column="43" selection-end-line="38" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="376">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shape_maker.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="96" column="51" selection-start-line="96" selection-start-column="51" selection-end-line="96" selection-end-column="51" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/transforms.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="101" column="37" selection-start-line="101" selection-start-column="37" selection-end-line="101" selection-end-column="37" />
+        <state relative-caret-position="66">
+          <caret line="96" column="39" lean-forward="true" selection-start-line="96" selection-start-column="39" selection-end-line="96" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/scenes.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="10" column="31" lean-forward="true" selection-start-line="10" selection-start-column="31" selection-end-line="10" selection-end-column="31" />
+        <state relative-caret-position="176">
+          <caret line="11" column="31" lean-forward="true" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
         </state>
       </provider>
     </entry>

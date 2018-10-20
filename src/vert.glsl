@@ -14,8 +14,7 @@ layout(set = 0, binding = 0) uniform Data {
     mat4 model;
     mat4 view;
     mat4 proj;
-    mat4 t;
-    mat4 r;
+
     mat4 r_model;
     mat4 t_model;
 
@@ -33,10 +32,13 @@ void main() {
     // gl_Position is a builtin name used to output the projected point.
 //    mat4 worldview = uniforms.view * uniforms.model;
 
-    mat4 worldview = uniforms.r * uniforms.t * uniforms.model;
+//    mat4 worldview = uniforms.r * uniforms.t * uniforms.model;
 
-//    v_normal = transpose(inverse(mat3(worldview))) * normal;
-    v_normal = transpose(inverse(mat3(uniforms.r_model))) * normal;
+    mat4 model = uniforms.t_model * uniforms.r_model;
+
+    mat4 worldview = uniforms.view * model;
+
+    v_normal = transpose(inverse(mat3(uniforms.r_model))) * -normal;
 
     gl_Position = uniforms.proj * worldview * vec4(position, 1.);
 

@@ -9,6 +9,8 @@
 #[macro_use]
 extern crate ndarray;
 
+extern crate num;
+
 // Vulkano
 #[macro_use]
 extern crate vulkano;
